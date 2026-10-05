@@ -1,45 +1,55 @@
 # Desknote
 
-A small personal focus board for Linux, built with Tauri 2, Rust, and a plain JavaScript/Vite interface. Notes and board groups live in a local SQLite database; the app makes no network requests for data.
+A local-first desktop focus board built with Tauri 2, Rust, React/JSX, Vite, and SQLite. The initial desktop targets are Linux, Windows, and macOS. The app makes no network requests for note data.
 
 ## Requirements
 
-- Rust stable (`rustup default stable`)
+- Rust stable
 - Node.js and npm
-- Ubuntu 22.04 or a compatible Linux desktop with GTK 3, WebKitGTK 4.1, JavaScriptCoreGTK 4.1, libsoup 3, OpenSSL, and build tools
+- On Ubuntu 22.04: GTK 3, WebKitGTK 4.1, JavaScriptCoreGTK 4.1, libsoup 3, OpenSSL, and build tools
 
-On Ubuntu, install the Tauri Linux packages with:
+Install the Linux build dependencies on Ubuntu:
 
 ```sh
 sudo apt update
 sudo apt install build-essential curl wget file libssl-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev libwebkit2gtk-4.1-dev
 ```
 
-Install the frontend packages once, then start the desktop app:
+Install frontend packages and start the app:
 
 ```sh
 npm install
 npm run tauri dev
 ```
 
-Create a Linux package with:
+Build frontend assets:
+
+```sh
+npm run build
+```
+
+Build a package for the current OS:
 
 ```sh
 npm run tauri build
 ```
 
-## Included
+Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb, Windows NSIS setup, and macOS DMG. Windows and macOS builds need to be produced and verified on their respective build environments; macOS releases need signing and notarization.
 
-- Freeform board with pan, zoom, draggable/resizable sticky notes, groups, and frames
-- Daily and weekly views based on note due dates
-- Basic rich text, checklists, colors, recurrence fields, and always-on-top note windows
-- Local SQLite storage under the app’s platform data directory
-- Login-start toggle through Tauri’s autostart plugin
-- Closing the main window minimizes it, leaving the app accessible from its taskbar icon
-- Press `V` while focused on the board to stop the app (with a confirmation); text fields keep `v` for typing
+## Current implementation
 
-The recurrence value is currently stored with the due date; recurring tasks do not advance automatically when completed. The Windows target is kept in mind but has not been compiled or checked on Windows yet.
+- React/JSX workspace with Everything, Daily, Weekly, and Completed views
+- Freeform canvas with panning, zoom, movable notes, groups, and frames
+- Note editor with colors, due dates, recurrence values, and checklists
+- Individual pinned-note windows, restored from local SQLite on startup
+- Pinned notes stay above windows by default and can be moved/resized independently from canvas positions
+- Note ellipsis menu with Open workspace, Edit, Unpin, and always-on-top controls
+- Workspace close or Ctrl+D hides the workspace while leaving the app and pinned notes running
+- Workspace taskbar entry is hidden in notes-only mode on Windows/Linux; macOS switches Dock visibility/activation policy when hiding or showing workspace
+- OS launcher activation focuses the existing app instance instead of opening a second copy
+- Optional launch-at-login setting; login launch opens pinned notes in the background mode
+- Local SQLite data under the OS app data directory; migrations add newer note fields without deleting existing notes
 
-## Ubuntu build note
+## Known implementation gaps
 
-This environment has Rust stable configured. Building the native app still needs `libwebkit2gtk-4.1-dev` (which provides JavaScriptCoreGTK 4.1) and `libsoup-3.0-dev`. Run the apt command above from a terminal with sudo access, then use `npm run tauri dev`.
+This is an active implementation. Daily reminder notifications, completed-task behavior refinements, export/import, keyboard and screen-reader accessibility, and platform-specific lifecycle verification remain to be completed. macOS Dock and multi-window behavior still needs an actual macOS build and user-session check. Recurrence values are stored but tasks do not advance automatically.

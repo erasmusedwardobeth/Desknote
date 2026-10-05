@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Desknote",
+  "version": "0.1.0",
+  "identifier": "app.desknote.personal",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [{ "label": "main", "title": "Desknote · Focus board", "width": 1180, "height": 780, "minWidth": 760, "minHeight": 520, "resizable": true, "visible": false, "skipTaskbar": true }],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": true }
+}
