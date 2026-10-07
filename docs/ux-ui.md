@@ -1,6 +1,6 @@
 # Desknote UX/UI Design Brief
 
-**Status:** Interaction baseline; visual styling and prototype still pending  
+**Status:** Interaction baseline for iterative implementation; visual styling and prototype remain open for user review
 **Revision:** 0.1  
 **Date:** 2026-10-05
 
@@ -8,8 +8,8 @@
 
 Store design source files and exports in `docs/design/`. For external design tools, add stable links below with access instructions. No external design link has been provided yet.
 
-- Design file: TBD
-- Prototype: TBD
+- Design file: Not created; UI decisions will be refined against the working app with the user
+- Prototype: Current React UI is an implementation prototype, not an approved visual design
 - Screenshots/reference: TBD
 
 ## Product surfaces
@@ -54,7 +54,7 @@ Store design source files and exports in `docs/design/`. For external design too
 
 ## Current implementation reference
 
-The current UI is in `src/main.js` and `src/style.css`. It uses a single main board and an editor dialog, with a pin action in the editor. This differs from the newly stated independent pinned-note windows and ellipsis dismissal behavior, so mockups and flow decisions should precede implementation changes.
+The current UI is in `src/main.jsx` and `src/style.css`. It provides a working implementation of the workspace, note editor, and independent pinned-note windows. Treat it as a reviewable prototype: the user expects to request visual and interaction changes until the UI matches their taste and feature intent. Requirements and implementation may be revised together during that feedback loop.
 
 ## Proposed navigation and lifecycle flows
 
@@ -115,4 +115,4 @@ Pinned notes stay above other windows by default and can be moved/resized. They 
 └────────────────────────────────────────────────────────────────┘
 ```
 
-Detailed visual design (colors, typography, responsive behavior, exact menu placement) remains to be created in `docs/design/` or linked from a design tool. The low-fidelity flows and menus in this brief are the interaction baseline.
+Detailed visual design (colors, typography, responsive behavior, exact menu placement) remains open and should be settled iteratively against the running app. The low-fidelity flows and menus in this brief are an initial interaction baseline, not a sign-off.

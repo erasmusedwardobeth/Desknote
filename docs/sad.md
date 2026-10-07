@@ -20,7 +20,7 @@ Record the proposed first-release architecture and its technical constraints. Pl
 
 ## 3. Current implementation (not an approved target decision)
 
-The implementation now uses Tauri 2, Rust, Vite, React/JSX, and SQLite. It has a workspace window and independent pinned-note windows, with single-instance activation and startup restoration in progress. Platform package targets are configured as Linux `deb`, Windows NSIS, and macOS DMG. Linux has a successful package build; target OS runtime behavior is still under verification.
+The implementation uses Tauri 2, Rust, Vite, React/JSX, and SQLite. It has a workspace window and independent pinned-note windows, with single-instance activation and startup restoration. Platform package targets are configured as Linux `deb`, Windows NSIS, and macOS DMG. The existing Linux package predates reminder support; the current source still needs a fresh package build and runtime verification. Windows and macOS behavior and packaging have not been verified.
 
 ## 4. Proposed logical components
 
@@ -79,6 +79,6 @@ Tauri’s per-window `skipTaskbar` behavior is unsupported on macOS, so the impl
 
 ### Decision (Proposed baseline)
 
-Use **Tauri + Vite + React + JSX** for the first release. It satisfies the explicit JSX preference while fitting a local desktop UI that calls native commands and does not currently require a Next.js server, SEO, or server-rendered web routes. Keep Next.js as a valid option if requirements emerge that benefit from its routing or static generation. Confirm the choice after a small build and multi-window integration spike on the agreed target operating systems.
+Use **Tauri + Vite + React + JSX** as the current implementation direction. It satisfies the explicit JSX preference while fitting a local desktop UI that calls native commands and does not currently require a Next.js server, SEO, or server-rendered web routes. The user has accepted proceeding with this stack, while UI design and feature behavior remain iterative until they approve the working app. Keep Next.js as a valid option if requirements emerge that benefit from its routing or static generation.
 
 References: [Tauri Next.js guide](https://v2.tauri.app/start/frontend/nextjs/), [Tauri frontend configuration](https://v2.tauri.app/start/frontend/), [Next.js static exports](https://nextjs.org/docs/app/guides/static-exports), [React JSX](https://react.dev/learn/writing-markup-with-jsx).

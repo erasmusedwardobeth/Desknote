@@ -45,3 +45,10 @@ Accessibility, platform checks, backup/export, packaging, install docs, known is
 ## Work tracking
 
 Break each stage into small issues linked to requirement IDs. Each change should include acceptance criteria and relevant verification evidence. Keep technical decisions in the SAD or an Architecture Decision Record (ADR) when a decision is significant and costly to reverse.
+
+## Iterative implementation and branch workflow
+
+- Continue implementation on the local `codex` branch. Keep `main` as the user's stable branch.
+- Treat the running UI as a prototype until the user says its look and behavior are acceptable. Apply feedback in small iterations and update the UX brief and requirements when feature intent changes.
+- Do not merge to `main` or push on the user's behalf. The user reviews the working app and changes, then merges to local `main` and pushes when satisfied.
+- Resume later release and distribution phases after the user accepts the working UI and backend behavior.
