@@ -1,6 +1,6 @@
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
+use std::{sync::Mutex, thread, time::Duration};
 use tauri::{
     AppHandle, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindowBuilder,
     WindowEvent,
@@ -122,7 +122,7 @@ fn save_note(mut note: Note, state: State<'_, AppState>) -> Result<Note, String>
         note.completed_at = None;
     }
     if let Some(id) = note.id {
-        conn.execute("UPDATE notes SET title=?1,body=?2,x=?3,y=?4,w=?5,h=?6,color=?7,pinned=?8,due=?9,recurrence=?10,checklist=?11,formatting=?12,group_id=?13,updated=?14,completed=?15,completed_at=?16,reminder_at=?17,always_on_top=?18,desktop_x=?19,desktop_y=?20,desktop_w=?21,desktop_h=?22 WHERE id=?23",
+        conn.execute("UPDATE notes SET title=?1,body=?2,x=?3,y=?4,w=?5,h=?6,color=?7,pinned=?8,due=?9,recurrence=?10,checklist=?11,formatting=?12,group_id=?13,updated=?14,completed=?15,completed_at=?16,reminder_sent=CASE WHEN reminder_at IS NOT ?17 THEN 0 ELSE reminder_sent END,reminder_at=?17,always_on_top=?18,desktop_x=?19,desktop_y=?20,desktop_w=?21,desktop_h=?22 WHERE id=?23",
             params![note.title,note.body,note.x,note.y,note.w,note.h,note.color,note.pinned as i64,note.due,note.recurrence,note.checklist,note.formatting,note.group_id,now,note.completed as i64,note.completed_at,note.reminder_at,note.always_on_top as i64,note.desktop_x,note.desktop_y,note.desktop_w,note.desktop_h,id]).map_err(|e|e.to_string())?;
         note.updated = Some(now);
     } else {
@@ -136,12 +136,52 @@ fn save_note(mut note: Note, state: State<'_, AppState>) -> Result<Note, String>
 }
 
 fn chrono_free_now() -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs()
-        .to_string()
+    chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+}
+
+fn start_reminder_scheduler(app: AppHandle) {
+    thread::spawn(move || loop {
+        thread::sleep(Duration::from_secs(15));
+        let due = {
+            let state = app.state::<AppState>();
+            let Ok(conn) = state.0.lock() else { continue };
+            let Ok(mut statement) = conn.prepare("SELECT id,title FROM notes WHERE reminder_at IS NOT NULL AND reminder_at <= ?1 AND reminder_sent=0 AND completed=0") else { continue };
+            let now = chrono_free_now();
+            let Ok(rows) = statement.query_map([now], |row| {
+                Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))
+            }) else {
+                continue;
+            };
+            rows.filter_map(Result::ok).collect::<Vec<_>>()
+        };
+        if due.is_empty() {
+            continue;
+        }
+        let state = app.state::<AppState>();
+        let Ok(conn) = state.0.lock() else { continue };
+        for (id, title) in due {
+            let Ok(changed) = conn.execute(
+                "UPDATE notes SET reminder_sent=1 WHERE id=?1 AND reminder_sent=0 AND completed=0",
+                [id],
+            ) else {
+                continue;
+            };
+            if changed == 1 {
+                use tauri_plugin_notification::NotificationExt;
+                let body = if title.trim().is_empty() {
+                    "A note is due"
+                } else {
+                    title.as_str()
+                };
+                let _ = app
+                    .notification()
+                    .builder()
+                    .title("Desknote reminder")
+                    .body(body)
+                    .show();
+            }
+        }
+    });
 }
 
 #[tauri::command]
@@ -217,6 +257,19 @@ fn save_region(region: Region, state: State<'_, AppState>) -> Result<Region, Str
         saved.id = Some(conn.last_insert_rowid());
         Ok(saved)
     }
+}
+
+#[tauri::command]
+fn delete_region(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    let conn = db(&state)?;
+    conn.execute(
+        "UPDATE notes SET group_id=NULL,updated=?1 WHERE group_id=?2",
+        params![chrono_free_now(), id],
+    )
+    .map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM regions WHERE id=?1", [id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 #[tauri::command]
@@ -429,11 +482,12 @@ fn configure_main_window(app: &AppHandle, background: bool) {
 }
 
 fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY,title TEXT NOT NULL,body TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,color TEXT NOT NULL,pinned INTEGER NOT NULL DEFAULT 0,due TEXT,recurrence TEXT,checklist TEXT NOT NULL DEFAULT '[]',formatting TEXT NOT NULL DEFAULT '{}',group_id INTEGER,created TEXT NOT NULL,updated TEXT NOT NULL,completed INTEGER NOT NULL DEFAULT 0,completed_at TEXT,reminder_at TEXT,always_on_top INTEGER NOT NULL DEFAULT 1,desktop_x REAL,desktop_y REAL,desktop_w REAL,desktop_h REAL); CREATE TABLE IF NOT EXISTS regions(id INTEGER PRIMARY KEY,title TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,kind TEXT NOT NULL,color TEXT NOT NULL);")?;
+    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY,title TEXT NOT NULL,body TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,color TEXT NOT NULL,pinned INTEGER NOT NULL DEFAULT 0,due TEXT,recurrence TEXT,checklist TEXT NOT NULL DEFAULT '[]',formatting TEXT NOT NULL DEFAULT '{}',group_id INTEGER,created TEXT NOT NULL,updated TEXT NOT NULL,completed INTEGER NOT NULL DEFAULT 0,completed_at TEXT,reminder_at TEXT,reminder_sent INTEGER NOT NULL DEFAULT 0,always_on_top INTEGER NOT NULL DEFAULT 1,desktop_x REAL,desktop_y REAL,desktop_w REAL,desktop_h REAL); CREATE TABLE IF NOT EXISTS regions(id INTEGER PRIMARY KEY,title TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,kind TEXT NOT NULL,color TEXT NOT NULL);")?;
     for (name, definition) in [
         ("completed", "INTEGER NOT NULL DEFAULT 0"),
         ("completed_at", "TEXT"),
         ("reminder_at", "TEXT"),
+        ("reminder_sent", "INTEGER NOT NULL DEFAULT 0"),
         ("always_on_top", "INTEGER NOT NULL DEFAULT 1"),
         ("desktop_x", "REAL"),
         ("desktop_y", "REAL"),
@@ -465,6 +519,7 @@ pub fn run() {
             .args(["--background"])
             .build(),
     );
+    builder = builder.plugin(tauri_plugin_notification::init());
 
     #[cfg(desktop)]
     {
@@ -489,11 +544,12 @@ pub fn run() {
             rows
         };
         app.manage(AppState(Mutex::new(conn)));
+        start_reminder_scheduler(app.handle().clone());
         for note in &pinned { let _ = create_pinned_window(app.handle(), note); }
         configure_main_window(app.handle(), should_start_hidden());
         Ok(())
     })
-    .invoke_handler(tauri::generate_handler![list_notes,save_note,delete_note,list_regions,save_region,set_autostart,get_autostart,pin_note,unpin_note,set_note_title,toggle_always_on_top,hide_workspace,show_workspace])
+    .invoke_handler(tauri::generate_handler![list_notes,save_note,delete_note,list_regions,save_region,delete_region,set_autostart,get_autostart,pin_note,unpin_note,set_note_title,toggle_always_on_top,hide_workspace,show_workspace])
     .run(tauri::generate_context!())
     .expect("error while running Desknote");
 }

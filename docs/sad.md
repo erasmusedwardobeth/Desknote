@@ -20,7 +20,7 @@ Record the proposed first-release architecture and its technical constraints. Pl
 
 ## 3. Current implementation (not an approved target decision)
 
-The repository currently uses Tauri 2, Rust, Vite, plain JavaScript, and SQLite. The frontend currently renders a single board and opens note editing in a dialog. Rust commands handle persistence and create pinned-note windows. Current package configuration targets Linux `deb` and AppImage. This is a baseline to evaluate, not a commitment to retain.
+The implementation now uses Tauri 2, Rust, Vite, React/JSX, and SQLite. It has a workspace window and independent pinned-note windows, with single-instance activation and startup restoration in progress. Platform package targets are configured as Linux `deb`, Windows NSIS, and macOS DMG. Linux has a successful package build; target OS runtime behavior is still under verification.
 
 ## 4. Proposed logical components
 
@@ -69,6 +69,8 @@ stateDiagram-v2
 OS window managers differ in close, minimize, always-on-top, and taskbar behavior. The required behavior is: no taskbar-running indication while only pinned notes are visible; show the app in the taskbar while the workspace is displayed; Ctrl+D minimizes only the workspace; closing/leaving the workspace keeps the process resident; unpinning the last note leaves it resident invisibly. Validate whether each target OS can represent this reliably, including the macOS Dock equivalent and Linux desktop environments, with an early technical spike before finalizing the architecture.
 
 ## 8. Frontend comparison (2026-10-05)
+
+Tauri’s per-window `skipTaskbar` behavior is unsupported on macOS, so the implementation uses macOS Dock visibility and activation-policy APIs for workspace-only app presence. Linux and Windows use per-window taskbar hints. Each target still requires runtime validation.
 
 | Option | JSX/React | Fit for a local desktop frontend | Trade-off |
 |---|---|---|---|

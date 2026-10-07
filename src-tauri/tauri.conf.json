@@ -14,5 +14,10 @@
     "windows": [{ "label": "main", "title": "Desknote · Focus board", "width": 1180, "height": 780, "minWidth": 760, "minHeight": 520, "resizable": true, "visible": false, "skipTaskbar": true }],
     "security": { "csp": null }
   },
-  "bundle": { "active": true }
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "shortDescription": "Personal desktop focus and planning board",
+    "longDescription": "Capture tasks and ideas, keep selected notes visible on the desktop, and organize them on a freeform workspace."
+  }
 }

@@ -14,6 +14,7 @@ These documents are the working source of truth for product intent and engineeri
 8. [Implementation plan](implementation-plan.md) — proposed delivery stages and completion criteria.
 9. [Release plan](release-plan.md) — packaging and distribution considerations.
 10. [Traceability matrix](traceability.md) — requirement-to-document and verification mapping.
+11. [Implementation status](implementation-status.md) — delivered code in the current iteration and remaining platform work.
 
 ## Status and traceability
 

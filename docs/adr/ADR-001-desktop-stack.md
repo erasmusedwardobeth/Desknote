@@ -1,6 +1,6 @@
 # ADR-001: Desktop application stack
 
-**Status:** Proposed for first release  
+**Status:** Proposed and implemented as the current baseline; Windows/macOS runtime validation pending  
 **Date:** 2026-10-05
 
 ## Context

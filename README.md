@@ -34,7 +34,7 @@ Build a package for the current OS:
 npm run tauri build
 ```
 
-Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb, Windows NSIS setup, and macOS DMG. Windows and macOS builds need to be produced and verified on their respective build environments; macOS releases need signing and notarization.
+Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb, Windows NSIS setup, and macOS DMG. The current Linux deb is at `src-tauri/target/release/bundle/deb/Desknote_0.1.0_amd64.deb`. Windows and macOS builds need to be produced and verified on their respective build environments; macOS releases need signing and notarization.
 
 ## Current implementation
 
@@ -52,4 +52,4 @@ Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb,
 
 ## Known implementation gaps
 
-This is an active implementation. Daily reminder notifications, completed-task behavior refinements, export/import, keyboard and screen-reader accessibility, and platform-specific lifecycle verification remain to be completed. macOS Dock and multi-window behavior still needs an actual macOS build and user-session check. Recurrence values are stored but tasks do not advance automatically.
+This is an active implementation. Local reminders are opt-in, request notification permission when configured, and fire once when due while Desknote is running. Export/import, broader keyboard and screen-reader accessibility, and platform-specific lifecycle verification remain to be completed. macOS Dock and multi-window behavior still needs an actual macOS build and user-session check. Recurrence values are stored but tasks do not advance automatically. Notifications depend on the operating system's notification service and permission settings.

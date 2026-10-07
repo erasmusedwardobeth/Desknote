@@ -1,7 +1,7 @@
 [package]
 name = "desknote"
 version = "0.1.0"
-description = "A personal desktop focus board"
+description = "A local-first desktop focus and planning app with pinned notes and a freeform workspace"
 authors = ["Desknote"]
 edition = "2021"
 
@@ -16,6 +16,8 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-autostart = "2"
 tauri-plugin-single-instance = "2"
+tauri-plugin-notification = "2"
 rusqlite = { version = "0.37", features = ["bundled"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

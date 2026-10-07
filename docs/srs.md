@@ -58,7 +58,7 @@ Desknote is a desktop app with (a) individually visible desktop notes and (b) a 
 
 ## 4. Quality requirements
 
-- **QR-001 Portability (Proposed):** The app shall be buildable and distributable for Linux, Windows, and macOS in the first desktop release. Android is deferred to a later phase. Exact minimum OS versions, Linux distributions, and installer/package formats are TBD; portable builds are deferred until after the first release.
+- **QR-001 Portability (Proposed):** The app shall be buildable and distributable for Linux, Windows, and macOS in the first desktop release. Android is deferred to a later phase. Exact minimum OS versions and Linux distributions remain for release validation. Proposed initial formats are Linux deb, Windows NSIS, and macOS DMG; portable builds are deferred.
 - **QR-002 Local-first (Proposed):** Core note and workspace functions shall work without an internet connection. Network use, if any, shall be documented and opt-in or otherwise explicitly approved.
 - **QR-003 Data integrity (Proposed):** A successful save shall survive normal app restart; interrupted writes shall not corrupt the whole collection.
 - **QR-004 Usability (Proposed):** Pin/unpin, open workspace, save, minimize/close workspace, and app activation actions shall be discoverable and operable by mouse and keyboard.

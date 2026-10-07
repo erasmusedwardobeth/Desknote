@@ -19,7 +19,7 @@ Ship Desknote as compiled desktop software. For the first release, use an instal
 
 | OS | Target versions | Package format | Build/verification owner | Status |
 |---|---|---|---|---|
-| Linux | Ubuntu 22.04 LTS baseline; compatible Debian-family distributions subject to validation | deb package | TBD | Initial desktop target; verification pending |
+| Linux | Ubuntu 22.04 LTS baseline; compatible Debian-family distributions subject to validation | deb package | Local build produced 2026-10-05 | Package built; install/runtime verification pending |
 | Windows | Minimum version selected after CI/device validation | NSIS setup executable | TBD | Initial desktop target; not yet verified |
 | macOS | Minimum version selected after CI/device validation | Signed/notarized DMG with app bundle | TBD | Initial desktop target; not yet verified |
 | Android | TBD | TBD | TBD | Deferred; later phase, outside initial desktop release |
