@@ -40,7 +40,7 @@ Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb,
 
 - React/JSX workspace with Everything, Daily, Weekly, and Completed views
 - Freeform canvas with panning, zoom, movable notes, groups, and frames
-- Note editor with colors, due dates, recurrence values, and checklists
+- Note editor with colors, due dates, recurring tasks, opt-in reminders, and checklists; completing a recurring task creates its next occurrence
 - Individual pinned-note windows, restored from local SQLite on startup
 - Pinned notes stay above windows by default and can be moved/resized independently from canvas positions
 - Note ellipsis menu with Open workspace, Edit, Unpin, and always-on-top controls
@@ -48,8 +48,11 @@ Platform bundle targets are defined in `src-tauri/tauri.*.conf.json`: Linux deb,
 - Workspace taskbar entry is hidden in notes-only mode on Windows/Linux; macOS switches Dock visibility/activation policy when hiding or showing workspace
 - OS launcher activation focuses the existing app instance instead of opening a second copy
 - Optional launch-at-login setting; login launch opens pinned notes in the background mode
+- Settings panel with JSON backup export, validated replacement restore, an automatic recovery copy, and keyboard shortcut guidance
+- Canvas pan/zoom preferences persist across sessions and are included in backups
+- Explicit Quit action in Settings; closing the workspace itself continues to keep Desknote running in the background
 - Local SQLite data under the OS app data directory; migrations add newer note fields without deleting existing notes
 
 ## Known implementation gaps
 
-This is an active implementation. Local reminders are opt-in, request notification permission when configured, and fire once when due while Desknote is running. Export/import, broader keyboard and screen-reader accessibility, and platform-specific lifecycle verification remain to be completed. macOS Dock and multi-window behavior still needs an actual macOS build and user-session check. Recurrence values are stored but tasks do not advance automatically. Notifications depend on the operating system's notification service and permission settings.
+This is an active implementation. Local reminders are opt-in, request notification permission when configured, and fire once when due while Desknote is running. Local JSON backup/restore creates a recovery copy before replacing data. Recurring tasks create their next occurrence when completed. Broader screen-reader accessibility and platform-specific lifecycle verification remain to be completed. macOS Dock and multi-window behavior still needs an actual macOS build and user-session check. Notifications depend on the operating system's notification service and permission settings.

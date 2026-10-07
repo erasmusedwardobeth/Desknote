@@ -12,9 +12,9 @@
 - `title`, `body`: text / sanitized rich text
 - `color`, `style`: presentation properties
 - `due_at`: optional local calendar date/time; store normalized value plus timezone policy
-- `recurrence_rule`: optional; first release stores but does not automatically advance
+- `recurrence`: optional daily, weekly, monthly, or yearly interval. Completing a dated recurring task preserves that completed note and creates the next active occurrence; month/year boundary dates clamp to the final valid day.
 - `reminder_at`: optional local reminder time; notifications are opt-in
-- `is_completed`, `completed_at`: task completion state and timestamp
+- `is_completed`, `completed_at`: task completion state and timestamp; completed tasks remain until the user deletes them
 - `is_pinned`: whether a desktop window is shown after startup
 - `desktop_x`, `desktop_y`, `desktop_width`, `desktop_height`: desktop note geometry
 - `is_always_on_top`: default true for pinned notes
@@ -33,7 +33,8 @@
 
 ### Workspace preferences
 
-- `id`, `key`, `value`: workspace camera/zoom, daily week-start preference, and app display settings
+- `workspace_view`: persisted canvas zoom and pan offset
+- `launch_at_login`: operating system startup preference (managed by the native autostart integration)
 
 ## Relationships and rules
 
@@ -45,7 +46,7 @@
 
 ## Data protection
 
-Use SQLite transactions for note updates and schema migrations. Rich text must be sanitized before rendering. Export/import format should be versioned and validated before data replacement. The stable 1.0 release should include a manual export path; encryption at rest is not assumed for the initial release.
+Use SQLite transactions for note updates, schema migrations, recurring task completion/advancement, and backup restoration. Rich text must be sanitized before rendering. The local JSON export/import format is versioned and validated before replacing data; a recovery backup is created before every restore. Encryption at rest is not assumed for the initial release.
 
 ## Mermaid ER sketch
 

@@ -51,7 +51,7 @@ Detailed interaction rules and unresolved questions are in [UX/UI design brief](
 
 ### Later or decision pending
 
-- Automatic advancement of recurring tasks after completion; the first release stores recurrence settings only.
+- Automatic advancement of recurring tasks using the local calendar when an occurrence is completed; the completed occurrence remains in the history.
 - Rich hierarchy (aim → goal → objective → project → task → subtask).
 - Sync, collaboration, mobile clients, and cloud storage.
 - Advanced themes and note templates.

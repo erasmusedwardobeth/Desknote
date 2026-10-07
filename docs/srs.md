@@ -36,8 +36,8 @@ Desknote is a desktop app with (a) individually visible desktop notes and (b) a 
 - **FR-012 (Proposed):** A note may have a due date and appear in a daily view when due today.
 - **FR-013 (Proposed):** A weekly view shall show notes due in the current local calendar week, Monday through Sunday.
 - **FR-014 (Proposed):** A note may contain checklist items whose completion state persists.
-- **FR-015 (Deferred):** The system may support daily, weekly, monthly, and yearly recurrence. Exact schedule, timezone, missed-occurrence, and completion behavior must be specified before implementation.
-- **FR-016 (Proposed):** Completing a task note shall retain it in a Completed view with completion timestamp. Completed notes are excluded from active daily/weekly views by default. Checklist item completion state is retained.
+- **FR-015 (Proposed):** A recurring task with a due date shall create its next active occurrence when the current occurrence is completed. The completed occurrence remains in Completed with its completion timestamp. Daily, weekly, monthly, and yearly intervals use the user's local calendar date; monthly and yearly dates clamp to the last valid day in the target month. One-time reminder settings are not copied to the next occurrence.
+- **FR-016 (Proposed):** Completing a task note shall retain it in a Completed view with completion timestamp until the user explicitly deletes it. Completed notes are excluded from active daily/weekly views by default. Checklist item completion state is retained.
 - **FR-027 (Proposed):** The user may configure a local reminder date/time for a note. Reminders are off by default and shall not require network access.
 - **FR-028 (Proposed):** The user shall be able to mark a task note complete and reopen it from the Completed view.
 
@@ -80,13 +80,13 @@ Desknote is a desktop app with (a) individually visible desktop notes and (b) a 
 - **DR-002 (Resolved by proposed default):** Closing the workspace keeps the app resident and pinned notes visible. A pinned note can only be dismissed by unpinning it from its ellipsis menu.
 - **DR-003 (Resolved by proposed default):** Pinned notes are always-on-top, movable, and resizable. Users can disable always-on-top per note in its menu if needed.
 - **DR-004 (Resolved by proposed default):** Initial packages: Linux deb for Ubuntu/Debian-family target; Windows NSIS setup executable; macOS signed/notarized DMG containing an app bundle. Portable packages are deferred. Minimum OS versions will be published after CI/device validation.
-- **DR-005 (Deferred):** Recurrence is stored but does not auto-advance in the first release.
+- **DR-005 (Proposed):** Recurring tasks advance on completion by creating a new active note and preserving the completed occurrence; calendar dates clamp at month/year boundaries. Future reminders must be configured for each occurrence.
 - **DR-006 (Resolved by proposed default):** First release preserves completed task notes in a Completed view with timestamps; checklist completion state also persists.
-- **DR-007 (Resolved by proposed default):** Local export/import is planned before stable 1.0; no cloud backup.
+- **DR-007 (Proposed):** Settings provides versioned local JSON export and replacement restore; a recovery copy is written before every restore. Cloud backup is out of scope.
 - **DR-008 (Resolved by proposed default):** Daily and weekly are filtered board views, with the current local day and Monday–Sunday week boundaries.
 - **DR-009 (Resolved by proposed default):** Follow native platform conventions while preserving the intent: no running-app indicator in notes-only mode; show app presence when workspace is displayed.
 - **DR-010 (Resolved by proposed default):** Unpinning the last note while workspace is hidden leaves the app resident invisibly; opening Desknote again from the OS launcher displays the workspace.
-- **DR-011 (Proposed):** Use local desktop notifications only when the user explicitly enables a reminder on a note. Default reminder time is user-selected; recurring reminders do not auto-advance in release one.
+- **DR-011 (Proposed):** Use local desktop notifications only when the user explicitly enables a reminder on a note. Each reminder is one-shot; the next occurrence of a recurring task starts without a reminder so the user can set its time intentionally.
 - **DR-012 (Resolved by proposed default):** Completed tasks remain available in a Completed view with completion timestamp; active daily/weekly views omit completed tasks by default.
 
 ## 7. Traceability

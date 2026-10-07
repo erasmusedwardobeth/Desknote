@@ -18,7 +18,7 @@ Record the proposed first-release architecture and its technical constraints. Pl
 - Maintainability in light of the user's JS/React/Next.js/TypeScript/Python/PyQt experience.
 - Use JSX/React as the preferred frontend authoring style; proposed bundler is Vite.
 
-## 3. Current implementation (not an approved target decision)
+## 3. Current implementation (iterative baseline)
 
 The implementation uses Tauri 2, Rust, Vite, React/JSX, and SQLite. It has a workspace window and independent pinned-note windows, with single-instance activation and startup restoration. Platform package targets are configured as Linux `deb`, Windows NSIS, and macOS DMG. The existing Linux package predates reminder support; the current source still needs a fresh package build and runtime verification. Windows and macOS behavior and packaging have not been verified.
 
@@ -31,7 +31,7 @@ The implementation uses Tauri 2, Rust, Vite, React/JSX, and SQLite. It has a wor
 - **Persistence layer:** local database, schema migrations, backup/export.
 - **Platform adapters:** login launch, window behavior, packaging, and OS-specific integration.
 
-## 5. Proposed architecture decision
+## 5. Current architecture decision
 
 Adopt **Tauri 2 + Vite + React + JSX + Rust + SQLite** as the proposed first-release architecture. Keep platform-specific window management behind a Rust platform adapter. Use local SQLite with versioned migrations. Android, automatic recurrence advancement, and portable distribution packages are outside the first release. See [ADR-001](adr/ADR-001-desktop-stack.md).
 

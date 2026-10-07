@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Default permissions for the Desknote workspace and pinned note windows.",
   "windows": ["main", "note-*"],
-  "permissions": ["core:default", "notification:default"]
+  "permissions": ["core:default", "dialog:default", "notification:default"]
 }

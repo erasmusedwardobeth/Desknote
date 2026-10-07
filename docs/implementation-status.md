@@ -13,6 +13,11 @@
 - Login startup passes a background argument so startup shows pinned notes without displaying the workspace.
 - Added a single-instance plugin and SQLite migrations for completion, reminders, always-on-top, and desktop geometry fields.
 - Added an opt-in local reminder datetime control, notification permission request, and native scheduler that sends each reminder once while the app is running (including overdue reminders found after restart).
+- Added local JSON backup export and replacement restore with format validation, a pre-restore recovery copy, and restoration of pinned note windows.
+- Added recurring task advancement on completion, local calendar handling for daily/weekly/monthly/yearly intervals, and next-occurrence date clamping.
+- Completed occurrences retain their completion timestamps in the Completed view until the user deletes them; recurring advancement preserves each completed occurrence.
+- Added interactive checklist controls on pinned notes, keyboard movement/resizing/edit access on the canvas, and a Settings panel with startup, backup, and shortcut guidance.
+- Persisted workspace zoom and pan state and included it in the local backup/restore data.
 - Added platform-specific bundle target configuration for Linux deb, Windows NSIS, and macOS DMG.
 
 ## Build checks
@@ -27,8 +32,7 @@
 - Run the packaged app and validate window close, restore, taskbar/Dock, startup, monitor changes, and multi-window behavior on Linux, Windows, and macOS.
 - macOS runtime behavior is unverified; the implementation switches Dock visibility and activation policy, but requires a signed app build check.
 - Exercise reminder permission, scheduled delivery, overdue delivery after restart, and one-shot behavior in the packaged app.
-- Export/import and recovery flow.
-- Recurrence advancement, intentionally deferred.
-- More complete keyboard and screen-reader support.
-- Completed task archival/history policy beyond the current Completed view.
+- Manually exercise backup/restore, recurrence boundaries, checklist persistence, and keyboard controls in the packaged app.
+- Add broader screen-reader support and verify keyboard focus/interaction with assistive technology.
+- Verify Completed history retention and reopen/delete behavior in the packaged app.
 - Windows/macOS installers, signing/notarization, and platform-specific installation guidance. Linux package runtime/install behavior still needs an end-to-end check.
