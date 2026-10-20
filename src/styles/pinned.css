@@ -1,0 +1,19 @@
+/* pinned.css — components/pinned/* (the borderless note window on your desktop) */
+.pinned-note-window { position: relative; width: 100vw; height: 100vh; overflow: hidden; padding: 0 16px 14px; border: 1px solid #24271a18; border-radius: 7px; box-shadow: 0 5px 16px #393b3025; color: #343630; display: flex; flex-direction: column; user-select: text; }
+.pinned-note-header { min-height: 38px; display: flex; align-items: center; gap: 8px; cursor: move; border-bottom: 1px solid #24271a10; }
+.pinned-note-title { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.note-ellipsis { border: 0; background: transparent; color: #565a52; font-size: 21px; line-height: 1; width: 28px; height: 27px; border-radius: 6px; cursor: pointer; }
+.note-ellipsis:hover { background: #ffffff70; }
+.pinned-note-body { overflow: auto; flex: 1; padding: 12px 0 8px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+.pinned-checklist { list-style: none; padding: 9px 0 0; margin: 0; font-size: 12px; }
+.pinned-checklist li { padding: 3px 0; }
+.pinned-checklist li.done { text-decoration: line-through; color: #7e8379; }
+.pinned-checklist label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.pinned-checklist input { margin: 3px 0 0; accent-color: #547b5b; }
+.pinned-checklist li.done span { text-decoration: line-through; color: #7e8379; }
+.pinned-note-footer { min-height: 21px; display: flex; gap: 12px; font-size: 10px; color: #777b70; }
+.pinned-note-menu { top: 34px; right: 8px; }
+.pinned-note-loading { margin: auto; font-size: 12px; color: #555; }
+.note-toast { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 7px 9px; border-radius: 7px; background: #343a32; color: white; font-size: 11px; }
+/* the editor, when shown inside a pinned note window, fills the whole window */
+.pinned-note-window .editor { box-shadow: none; }

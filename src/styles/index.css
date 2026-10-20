@@ -1,0 +1,24 @@
+/*
+ * index.css — the ONLY stylesheet main.jsx imports. It just lists the others.
+ * ORDER MATTERS: later files override earlier ones, so keep this order.
+ *
+ *   theme.css      color/size variables  ← change the look of the whole app here
+ *   base.css       reset, shared buttons, toast, error banner
+ *   topbar.css     the top bar            footer.css   the bottom bar + zoom buttons
+ *   canvas.css     the zoomable board     note-card.css / region.css   items on the board
+ *   menu.css       small "⋯" popup menus
+ *   modal.css      dialog frame           editor.css   note editor contents
+ *   settings.css   settings dialog        pinned.css   pinned desktop note window
+ */
+@import './theme.css';
+@import './base.css';
+@import './topbar.css';
+@import './canvas.css';
+@import './note-card.css';
+@import './region.css';
+@import './footer.css';
+@import './menu.css';
+@import './modal.css';
+@import './editor.css';
+@import './settings.css';
+@import './pinned.css';

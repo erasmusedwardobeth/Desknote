@@ -1,0 +1,19 @@
+/* settings.css — components/settings/* */
+.settings-panel { width: min(610px, calc(100vw - 32px)); padding: 26px; }
+.settings-panel .editor-head h2 { margin: 5px 0 0; font-size: 23px; letter-spacing: -.04em; color: #363a33; }
+.settings-section { padding: 17px 0; border-top: 1px solid var(--line); }
+.settings-section h3 { margin: 0 0 6px; font-size: 14px; color: #41453e; }
+.settings-section p { margin: 5px 0 12px; font-size: 12px; line-height: 1.55; color: #777b72; }
+.settings-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.settings-action { border: 1px solid var(--line); background: #fffefa; color: #4f574c; }
+.settings-action:hover { background: #f1f1e9; }
+.settings-note { font-size: 11px !important; color: #8a8c82 !important; }
+.shortcut-list { margin: 10px 0 0; display: grid; gap: 8px; }
+.shortcut-list div { display: grid; grid-template-columns: minmax(120px, .7fr) 1.3fr; gap: 12px; font-size: 12px; }
+.shortcut-list dt { font-weight: 600; color: #52574f; }
+.shortcut-list dd { margin: 0; color: #777b72; }
+@media (max-width: 560px) {
+  .settings-panel { padding: 19px; }
+  .shortcut-list div { grid-template-columns: 1fr; gap: 2px; }
+  .settings-buttons { flex-direction: column; align-items: stretch; }
+}

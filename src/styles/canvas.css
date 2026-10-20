@@ -1,0 +1,7 @@
+/* canvas.css — the zoomable board in components/workspace/Workspace.jsx */
+#board-shell { height: calc(100vh - 108px); position: relative; overflow: hidden; background-color: #f8f7f3; background-image: radial-gradient(#d9d8d0 .75px, transparent .75px); background-size: 22px 22px; touch-action: none; }
+.board-heading { position: absolute; z-index: 1; left: 29px; top: 24px; font-size: 12px; letter-spacing: .02em; color: #6d7168; font-weight: 600; pointer-events: none; }
+/* #world is the layer that is moved and scaled (pan + zoom); notes and regions live inside it */
+#world { position: absolute; inset: 0 auto auto 0; width: 1px; height: 1px; transform-origin: 0 0; }
+.empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; gap: 6px; text-align: center; color: #8a8d85; font-size: 12px; pointer-events: none; }
+.empty strong { color: #555a51; font-size: 14px; }
