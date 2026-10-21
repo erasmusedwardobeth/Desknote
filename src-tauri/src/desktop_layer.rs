@@ -1,34 +1,13 @@
-//! desktop_layer.rs — where pinned notes sit relative to your other windows.
+//! Linux desktop-layer policy for pinned Desknote windows.
 //!
-//! GOAL (SRS: "reminder scroll"): a pinned note lives on the DESKTOP LAYER.
-//!   * It is NOT drawn over your other apps (unless you switch on "Float above windows").
-//!   * It should remain behind other applications and on every workspace.
-//!   * A normal interactive X11 window type is used so pointer-driven move/resize works.
-//!     Some window managers treat the strict Desktop hint as immovable; set
-//!     DESKNOTE_HINT=desktop to opt back into that hint if show-desktop persistence
-//!     matters more than moving/resizing on the current desktop environment.
-//!   * It is not in the taskbar and appears on every virtual desktop.
-//!
-//! This is OS-specific, so every platform has its own `apply`:
-//!   Linux    → implemented below (X11 window-type hints, see notes).
-//!   Windows  → TODO: attach the window to the desktop (WorkerW) layer.
-//!   macOS    → TODO: desktop window level + "join all spaces".
-//!
-//! LINUX NOTES
-//!   On Wayland an app may not choose its window position or layer, so on Linux we
-//!   start the app through XWayland (GDK_BACKEND=x11, see `prepare_backend`). There we
-//!   mark pinned windows as X11 "desktop" windows, the same trick Conky uses.
-//!   Different window managers react differently, so you can experiment WITHOUT
-//!   recompiling by setting DESKNOTE_HINT before launching:
-//!       DESKNOTE_HINT=utility npm run tauri dev   (default)
-//!       DESKNOTE_HINT=dock    npm run tauri dev
-//!       DESKNOTE_HINT=utility npm run tauri dev
-//!       DESKNOTE_HINT=normal  npm run tauri dev
+//! Keep the strict Desktop hint as the default to preserve the behavior the user
+//! had before the interaction patch. Programmatic move/resize controls are handled
+//! separately by the pinned-note frontend; do not change the window type to Utility
+//! globally, because that changes the window manager's Show Desktop behavior.
 
 use tauri::WebviewWindow;
 
-/// Call once, first thing in run(), BEFORE any window exists.
-/// On Linux it forces the X11 (XWayland) backend unless the user already chose one.
+/// Call before any window exists. Force XWayland unless explicitly configured.
 pub fn prepare_backend() {
     #[cfg(target_os = "linux")]
     {
@@ -38,7 +17,6 @@ pub fn prepare_backend() {
     }
 }
 
-/// Which X11 window type pinned notes use (Linux only). Overridable with DESKNOTE_HINT.
 #[cfg(target_os = "linux")]
 fn hint_from_env() -> gtk::gdk::WindowTypeHint {
     use gtk::gdk::WindowTypeHint;
@@ -46,17 +24,11 @@ fn hint_from_env() -> gtk::gdk::WindowTypeHint {
         Ok("dock") => WindowTypeHint::Dock,
         Ok("utility") => WindowTypeHint::Utility,
         Ok("normal") => WindowTypeHint::Normal,
-        // Desktop-type windows are commonly excluded from WM move/resize handling.
-        // Utility remains interactive while set_keep_below(true) keeps it behind apps.
-        _ => WindowTypeHint::Utility,
+        // Preserve the known desktop-layer behavior by default.
+        _ => WindowTypeHint::Desktop,
     }
 }
 
-/// Puts a pinned-note window on the right layer.
-///   float_above = false → desktop layer (default)
-///   float_above = true  → floats above other windows
-/// X11 only reads the window type when a window is shown, so the window is hidden and
-/// shown again if it was visible (a brief blink).
 #[cfg(target_os = "linux")]
 pub fn apply(window: &WebviewWindow, float_above: bool) -> Result<(), String> {
     let target = window.clone();
@@ -79,7 +51,7 @@ pub fn apply(window: &WebviewWindow, float_above: bool) -> Result<(), String> {
             }
             gtk_window.set_skip_taskbar_hint(true);
             gtk_window.set_skip_pager_hint(true);
-            gtk_window.stick(); // show on every virtual desktop
+            gtk_window.stick();
             if was_visible {
                 gtk_window.show_all();
             }
@@ -87,7 +59,6 @@ pub fn apply(window: &WebviewWindow, float_above: bool) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
-/// Windows / macOS: not implemented yet. Falls back to ordinary always-on-top handling.
 #[cfg(not(target_os = "linux"))]
 pub fn apply(window: &WebviewWindow, float_above: bool) -> Result<(), String> {
     window.set_always_on_top(float_above).map_err(|e| e.to_string())
