@@ -33,6 +33,7 @@ import Footer from './Footer.jsx';
 import NoteCard from './NoteCard.jsx';
 import RegionBox from './RegionBox.jsx';
 import TopBar from './TopBar.jsx';
+import SidebarTree from './SidebarTree.jsx';
 
 export default function Workspace() {
   // ---- data and camera ----
@@ -221,6 +222,19 @@ export default function Workspace() {
   };
 
   // ---- canvas wheel zoom (Ctrl/⌘ + scroll) ----
+  const navigateToItem = ({ type, item }) => {
+    if (type === 'note') setBoard(item.completed ? 'Completed' : 'Everything');
+    else setBoard('Everything');
+    const shell = shellRef.current;
+    if (!shell || !item) return;
+    const width = type === 'region' ? item.w : item.w || 260;
+    const height = type === 'region' ? item.h : item.h || 180;
+    setShift({
+      x: shell.clientWidth / 2 - (item.x + width / 2) * zoom,
+      y: shell.clientHeight / 2 - (item.y + height / 2) * zoom,
+    });
+  };
+
   const handleWheel = (event) => {
     if (!event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
@@ -236,7 +250,9 @@ export default function Workspace() {
         onAddRegion={addRegion} onCreateNote={createNote}
       />
 
-      <main
+      <div className="workspace-layout">
+        <SidebarTree notes={notes} regions={regions} onNavigate={navigateToItem} onCreateNote={createNote} onCreateGroup={() => addRegion('group')} />
+        <main
         id="board-shell" ref={shellRef} aria-label={`${board} notes workspace`}
         onPointerDown={drag.startPan} onPointerMove={drag.moveDrag}
         onPointerUp={drag.finishDrag} onPointerCancel={drag.finishDrag}
@@ -271,7 +287,8 @@ export default function Workspace() {
             <span>{board === 'Completed' ? 'Completed task notes will appear here.' : 'Add a note here or give an existing note a date.'}</span>
           </div>
         )}
-      </main>
+        </main>
+      </div>
 
       <Footer zoom={zoom} onZoomIn={() => zoomBy(1.15)} onZoomOut={() => zoomBy(0.87)} onReset={resetView} />
 
