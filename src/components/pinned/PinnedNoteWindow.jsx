@@ -9,7 +9,7 @@
  * Prop: noteId — which note this window shows.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getCurrentWindow, PhysicalPosition } from '@tauri-apps/api/window';
+import { getCurrentWindow, PhysicalPosition, PhysicalSize } from '@tauri-apps/api/window';
 import { completeNote, deleteNote, saveNote } from '../../api/notes.js';
 import { setNotePinned, setNoteTitle, showWorkspace, toggleAlwaysOnTop, unpinNote } from '../../api/windows.js';
 import { useBoardData } from '../../hooks/useBoardData.js';
@@ -29,43 +29,91 @@ export default function PinnedNoteWindow({ noteId }) {
   const [toast, setToast] = useState('');
   const dragRef = useRef(null);
 
-  // X11 desktop-type windows are often excluded from the window manager's normal
-  // title-bar dragging. Move the borderless window directly while dragging its header.
-  // Positions are stored in physical pixels by Tauri; pointer coordinates are CSS pixels.
+  // Pinned windows are borderless, so provide explicit move and resize handles.
+  // Geometry APIs use physical pixels; pointer screen coordinates use CSS pixels.
   const beginHeaderDrag = async (event) => {
     if (event.button !== 0 || event.target.closest('button, a, input, textarea, select')) return;
     event.preventDefault();
-    const header = event.currentTarget;
-    header.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const current = getCurrentWindow();
+    const drag = {
+      mode: 'move', pointerId: event.pointerId,
+      startX: event.screenX, startY: event.screenY,
+      latestX: event.screenX, latestY: event.screenY,
+      originX: 0, originY: 0, scale: 1, current, ready: false, moved: false,
+    };
+    dragRef.current = drag;
     try {
-      const current = getCurrentWindow();
       const [position, scale] = await Promise.all([current.outerPosition(), current.scaleFactor()]);
-      dragRef.current = {
-        pointerId: event.pointerId,
-        startX: event.screenX,
-        startY: event.screenY,
-        originX: position.x,
-        originY: position.y,
-        scale,
-        current,
-        moved: false,
-      };
+      if (dragRef.current !== drag) return;
+      drag.originX = position.x;
+      drag.originY = position.y;
+      drag.scale = scale;
+      drag.ready = true;
+      moveWindowFromPointer(drag, drag.latestX, drag.latestY);
     } catch (cause) {
+      if (dragRef.current === drag) dragRef.current = null;
       setToast(`Could not start moving note: ${cause}`);
     }
+  };
+
+  const beginResize = async (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const current = getCurrentWindow();
+    const drag = {
+      mode: 'resize', pointerId: event.pointerId,
+      startX: event.screenX, startY: event.screenY,
+      latestX: event.screenX, latestY: event.screenY,
+      originW: 0, originH: 0, scale: 1, current, ready: false,
+    };
+    dragRef.current = drag;
+    try {
+      const [size, scale] = await Promise.all([current.outerSize(), current.scaleFactor()]);
+      if (dragRef.current !== drag) return;
+      drag.originW = size.width;
+      drag.originH = size.height;
+      drag.scale = scale;
+      drag.ready = true;
+      resizeWindowFromPointer(drag, drag.latestX, drag.latestY);
+    } catch (cause) {
+      if (dragRef.current === drag) dragRef.current = null;
+      setToast(`Could not start resizing note: ${cause}`);
+    }
+  };
+
+  const moveWindowFromPointer = (drag, screenX, screenY) => {
+    const dx = screenX - drag.startX;
+    const dy = screenY - drag.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+    if (!drag.ready || !drag.moved) return;
+    drag.current.setPosition(new PhysicalPosition(
+      Math.round(drag.originX + dx * drag.scale),
+      Math.round(drag.originY + dy * drag.scale),
+    )).catch((cause) => setToast(`Could not move note: ${cause}`));
+  };
+
+  const resizeWindowFromPointer = (drag, screenX, screenY) => {
+    if (!drag.ready) return;
+    const dx = screenX - drag.startX;
+    const dy = screenY - drag.startY;
+    const minW = Math.round(250 * drag.scale);
+    const minH = Math.round(180 * drag.scale);
+    drag.current.setSize(new PhysicalSize(
+      Math.max(minW, Math.round(drag.originW + dx * drag.scale)),
+      Math.max(minH, Math.round(drag.originH + dy * drag.scale)),
+    )).catch((cause) => setToast(`Could not resize note: ${cause}`));
   };
 
   const moveHeaderDrag = (event) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
-    const dx = event.screenX - drag.startX;
-    const dy = event.screenY - drag.startY;
-    if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
-    if (!drag.moved) return;
-    drag.current.setPosition(new PhysicalPosition(
-      Math.round(drag.originX + dx * drag.scale),
-      Math.round(drag.originY + dy * drag.scale),
-    )).catch((cause) => setToast(`Could not move note: ${cause}`));
+    drag.latestX = event.screenX;
+    drag.latestY = event.screenY;
+    if (drag.mode === 'resize') resizeWindowFromPointer(drag, event.screenX, event.screenY);
+    else moveWindowFromPointer(drag, event.screenX, event.screenY);
   };
 
   const endHeaderDrag = (event) => {
@@ -151,6 +199,15 @@ export default function PinnedNoteWindow({ noteId }) {
         {stripTags(note.body)}
         <PinnedChecklist items={checks} onToggle={toggleChecklistItem} />
       </div>
+      <button
+        className="pinned-note-resize-handle"
+        aria-label="Resize pinned note"
+        title="Drag to resize"
+        onPointerDown={beginResize}
+        onPointerMove={moveHeaderDrag}
+        onPointerUp={endHeaderDrag}
+        onPointerCancel={endHeaderDrag}
+      />
       <footer className="pinned-note-footer">
         {note.due && <span>◷ {note.due}</span>}
         {note.reminderAt && <span>⏰ {new Date(note.reminderAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</span>}

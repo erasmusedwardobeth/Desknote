@@ -2,7 +2,11 @@
 //!
 //! GOAL (SRS: "reminder scroll"): a pinned note lives on the DESKTOP LAYER.
 //!   * It is NOT drawn over your other apps (unless you switch on "Float above windows").
-//!   * It is NOT minimized by the OS "show desktop" shortcut (Win/Super + D).
+//!   * It should remain behind other applications and on every workspace.
+//!   * A normal interactive X11 window type is used so pointer-driven move/resize works.
+//!     Some window managers treat the strict Desktop hint as immovable; set
+//!     DESKNOTE_HINT=desktop to opt back into that hint if show-desktop persistence
+//!     matters more than moving/resizing on the current desktop environment.
 //!   * It is not in the taskbar and appears on every virtual desktop.
 //!
 //! This is OS-specific, so every platform has its own `apply`:
@@ -16,7 +20,7 @@
 //!   mark pinned windows as X11 "desktop" windows, the same trick Conky uses.
 //!   Different window managers react differently, so you can experiment WITHOUT
 //!   recompiling by setting DESKNOTE_HINT before launching:
-//!       DESKNOTE_HINT=desktop npm run tauri dev   (default)
+//!       DESKNOTE_HINT=utility npm run tauri dev   (default)
 //!       DESKNOTE_HINT=dock    npm run tauri dev
 //!       DESKNOTE_HINT=utility npm run tauri dev
 //!       DESKNOTE_HINT=normal  npm run tauri dev
@@ -42,7 +46,9 @@ fn hint_from_env() -> gtk::gdk::WindowTypeHint {
         Ok("dock") => WindowTypeHint::Dock,
         Ok("utility") => WindowTypeHint::Utility,
         Ok("normal") => WindowTypeHint::Normal,
-        _ => WindowTypeHint::Desktop,
+        // Desktop-type windows are commonly excluded from WM move/resize handling.
+        // Utility remains interactive while set_keep_below(true) keeps it behind apps.
+        _ => WindowTypeHint::Utility,
     }
 }
 
