@@ -44,6 +44,8 @@
 | Export / restore backups                           | `commands/backup.rs`            |
 | Pinned windows, hide/show workspace, quit          | `window_manager.rs`             |
 | Reminder notifications                             | `reminders.rs`                  |
+| Where pinned notes sit (desktop layer, survive Win+D) | `desktop_layer.rs` (per-OS code) |
+| Pin/unpin as ONE operation (DB + window)           | `window_manager.rs` → `set_note_pinned` |
 | Which windows may use which Tauri features         | `../capabilities/default.json`  |
 
 ## How a click travels through the app

@@ -22,3 +22,8 @@ rusqlite = { version = "0.37", features = ["bundled"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+# Linux only: used by src/desktop_layer.rs to mark pinned notes as desktop-layer windows.
+# (The version must match the gtk version Tauri already uses.)
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18"

@@ -4,10 +4,9 @@
   "description": "Default permissions for the Desknote workspace and pinned note windows.",
   "windows": ["main", "note-*"],
   "permissions": [
-  "core:default",
-  "core:window:allow-start-dragging",
-  "dialog:default",
-  "notification:default"
-]
-  
+    "core:default",
+    "core:window:allow-start-dragging",
+    "dialog:default",
+    "notification:default"
+  ]
 }

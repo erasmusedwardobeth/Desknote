@@ -71,6 +71,12 @@ pub fn all_notes(conn: &Connection) -> Result<Vec<Note>, String> {
     Ok(rows)
 }
 
+/// One note by id.
+pub fn note_by_id(conn: &Connection, id: i64) -> Result<Note, String> {
+    conn.query_row(&format!("{NOTE_SELECT} WHERE id=?1"), [id], note_from_row)
+        .map_err(|e| e.to_string())
+}
+
 /// Every group/frame, oldest first.
 pub fn all_regions(conn: &Connection) -> Result<Vec<Region>, String> {
     let mut statement = conn
@@ -108,7 +114,7 @@ pub fn workspace_view_from_connection(conn: &Connection) -> WorkspaceView {
 /// Creates the tables if missing and adds any columns that older databases lack.
 /// Safe to run on every start.
 pub fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY,title TEXT NOT NULL,body TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,color TEXT NOT NULL,pinned INTEGER NOT NULL DEFAULT 0,due TEXT,recurrence TEXT,checklist TEXT NOT NULL DEFAULT '[]',formatting TEXT NOT NULL DEFAULT '{}',group_id INTEGER,created TEXT NOT NULL,updated TEXT NOT NULL,completed INTEGER NOT NULL DEFAULT 0,completed_at TEXT,reminder_at TEXT,reminder_sent INTEGER NOT NULL DEFAULT 0,always_on_top INTEGER NOT NULL DEFAULT 1,desktop_x REAL,desktop_y REAL,desktop_w REAL,desktop_h REAL); CREATE TABLE IF NOT EXISTS regions(id INTEGER PRIMARY KEY,title TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,kind TEXT NOT NULL,color TEXT NOT NULL); CREATE TABLE IF NOT EXISTS app_settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);")?;
+    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY,title TEXT NOT NULL,body TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,color TEXT NOT NULL,pinned INTEGER NOT NULL DEFAULT 0,due TEXT,recurrence TEXT,checklist TEXT NOT NULL DEFAULT '[]',formatting TEXT NOT NULL DEFAULT '{}',group_id INTEGER,created TEXT NOT NULL,updated TEXT NOT NULL,completed INTEGER NOT NULL DEFAULT 0,completed_at TEXT,reminder_at TEXT,reminder_sent INTEGER NOT NULL DEFAULT 0,always_on_top INTEGER NOT NULL DEFAULT 0,desktop_x REAL,desktop_y REAL,desktop_w REAL,desktop_h REAL); CREATE TABLE IF NOT EXISTS regions(id INTEGER PRIMARY KEY,title TEXT NOT NULL,x REAL NOT NULL,y REAL NOT NULL,w REAL NOT NULL,h REAL NOT NULL,kind TEXT NOT NULL,color TEXT NOT NULL); CREATE TABLE IF NOT EXISTS app_settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);")?;
 
     // Columns added after the first release: add them to old databases.
     // To add a new column later, append a (name, definition) pair here.
@@ -117,7 +123,7 @@ pub fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {
         ("completed_at", "TEXT"),
         ("reminder_at", "TEXT"),
         ("reminder_sent", "INTEGER NOT NULL DEFAULT 0"),
-        ("always_on_top", "INTEGER NOT NULL DEFAULT 1"),
+        ("always_on_top", "INTEGER NOT NULL DEFAULT 0"),
         ("desktop_x", "REAL"),
         ("desktop_y", "REAL"),
         ("desktop_w", "REAL"),
@@ -134,6 +140,18 @@ pub fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {
                 [],
             )?;
         }
+    }
+
+    // One-time change (Step 2): pinned notes now sit on the desktop layer by default,
+    // so older notes that had "always on top" switched on are reset once.
+    let layer_migrated: bool = conn.query_row(
+        "SELECT EXISTS(SELECT 1 FROM app_settings WHERE key='pin_layer_v2')",
+        [],
+        |row| row.get(0),
+    )?;
+    if !layer_migrated {
+        conn.execute("UPDATE notes SET always_on_top=0", [])?;
+        conn.execute("INSERT INTO app_settings(key,value) VALUES('pin_layer_v2','1')", [])?;
     }
     Ok(())
 }

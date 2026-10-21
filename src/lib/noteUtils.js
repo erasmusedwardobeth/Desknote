@@ -16,6 +16,7 @@ export const defaultNote = (index = 0) => ({
   pinned: false, due: null, recurrence: null,
   checklist: '[]', formatting: '{}', groupId: null,
   created: null, updated: null, reminderAt: null, reminderSent: false,
+  alwaysOnTop: false, // false = a pinned note sits on the desktop layer; true = floats above windows
 });
 
 /** Removes HTML tags and extra whitespace — used for plain-text previews. */

@@ -16,3 +16,7 @@
 /* the "⋯" button appears on hover or keyboard focus */
 .card-menu-trigger { position: absolute; right: 8px; top: 7px; width: 25px; height: 22px; border: 0; border-radius: 6px; background: #ffffff66; color: #51554e; font-size: 18px; line-height: 1; opacity: 0; cursor: pointer; }
 .note-card:hover .card-menu-trigger, .card-menu-trigger:focus-visible, .note-card:focus-visible .card-menu-trigger, .note-card:focus-within .card-menu-trigger { opacity: 1; }
+
+/* pin icon: only shown on pinned notes; click asks "Unpin?" (top right, left of the "⋯" button) */
+.pin-toggle { position: absolute; right: 38px; top: 7px; width: 25px; height: 22px; border: 0; border-radius: 6px; background: #ffffff66; color: #51554e; cursor: pointer; display: grid; place-items: center; }
+.pin-toggle:hover { background: #ffffffb0; }

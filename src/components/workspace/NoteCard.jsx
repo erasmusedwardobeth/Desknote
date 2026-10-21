@@ -11,15 +11,18 @@
  *   onToggleMenu    open/close the menu
  *   onEdit(note)    open the editor
  *   onPinToggle(note), onComplete(note), onDelete(note)   menu actions
+ *   onUnpin(note)   called after the user confirms the pin icon's "Unpin?" question
  *   onNudge(updatedNote)   keyboard move/resize finished
  *   onDragStart(event, note, mode), onDragMove, onDragEnd   from useCanvasDrag
  */
 import { NOTE_MIN } from '../../lib/constants.js';
 import { nudged } from '../../lib/nudge.js';
 import { stripTags } from '../../lib/noteUtils.js';
+import { confirmAction } from '../../lib/dialogs.js';
+import PinIcon from '../ui/PinIcon.jsx';
 import PopupMenu from '../ui/PopupMenu.jsx';
 
-export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onEdit, onPinToggle, onComplete, onDelete, onNudge, onDragStart, onDragMove, onDragEnd }) {
+export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onEdit, onPinToggle, onUnpin, onComplete, onDelete, onNudge, onDragStart, onDragMove, onDragEnd }) {
   const title = note.title || 'Untitled';
 
   const handleKeyDown = (event) => {
@@ -49,7 +52,6 @@ export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onE
       onContextMenu={(event) => { event.preventDefault(); onEdit(note); }}
     >
       <div className="card-title">
-        {note.pinned && <span className="pin" aria-label="Pinned">⌖</span>}
         {title}
         {note.completed && <span className="complete-label">Completed</span>}
       </div>
@@ -63,6 +65,18 @@ export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onE
           </span>
         )}
       </div>
+      {note.pinned && (
+        <button
+          className="pin-toggle"
+          title="Pinned to desktop — click to unpin"
+          aria-label={`Unpin ${title} from the desktop`}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={async (event) => {
+            event.stopPropagation();
+            if (await confirmAction(`Unpin “${title}” from the desktop?`)) onUnpin(note);
+          }}
+        ><PinIcon /></button>
+      )}
       <button
         className="card-menu-trigger"
         aria-label={`Actions for ${title}`}

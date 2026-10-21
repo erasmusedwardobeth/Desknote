@@ -17,3 +17,7 @@
 .note-toast { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 7px 9px; border-radius: 7px; background: #343a32; color: white; font-size: 11px; }
 /* the editor, when shown inside a pinned note window, fills the whole window */
 .pinned-note-window .editor { box-shadow: none; }
+
+/* the pin icon inside the pinned note's header sits in the normal flow */
+.pinned-note-header .pin-toggle { position: static; background: transparent; }
+.pinned-note-header .pin-toggle:hover { background: #ffffff70; }

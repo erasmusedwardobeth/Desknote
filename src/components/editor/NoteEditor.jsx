@@ -9,7 +9,8 @@
  *   regions     groups/frames, for the Group picker
  *   onCancel()  close without saving
  *   onSave(draft)      resolves to the saved note, or null on failure
- *   onDelete(draft), onPin(draft), onComplete(draft)   action buttons
+ *   onDelete(draft), onComplete(draft)   action buttons
+ *   onPin(draft)  the pin button: `draft.pinned` is ALREADY flipped to the wanted value
  *   onNotify(text)     show a short message
  */
 import { useState } from 'react';

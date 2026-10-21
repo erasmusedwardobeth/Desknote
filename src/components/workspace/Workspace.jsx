@@ -17,7 +17,7 @@ import { open, save as chooseSavePath } from '@tauri-apps/plugin-dialog';
 import { completeNote, deleteNote, saveNote } from '../../api/notes.js';
 import { deleteRegion, saveRegion } from '../../api/regions.js';
 import { exportBackup, getAutostart, importBackup, setAutostart } from '../../api/settings.js';
-import { hideWorkspace, pinNote, quitApp, unpinNote } from '../../api/windows.js';
+import { hideWorkspace, quitApp, setNotePinned, unpinNote } from '../../api/windows.js';
 import { useBoardData } from '../../hooks/useBoardData.js';
 import { useCanvasDrag } from '../../hooks/useCanvasDrag.js';
 import { useToast } from '../../hooks/useToast.js';
@@ -79,25 +79,34 @@ export default function Workspace() {
   });
 
   // ---- note actions ----
-  /** Saves a note, then opens or closes its desktop window to match `pinned`. */
+  /**
+   * Saves a note. Only if its `pinned` value CHANGED does it also open/close the desktop
+   * window (through the single Rust command setNotePinned), so ordinary edits never make
+   * a pinned window blink.
+   */
   const save = async (draft) => {
     try {
+      const wasPinned = Boolean(notes.find((item) => item.id === draft.id)?.pinned);
       const saved = await saveNote(draft);
-      if (saved.pinned) await pinNote(saved);
-      else if (saved.id) await unpinNote(saved.id);
+      if (Boolean(saved.pinned) !== wasPinned) await setNotePinned(saved.id, Boolean(saved.pinned));
       await reload();
       setEditing(null);
       return saved;
     } catch (cause) {
+      await reload(); // show the true state (Rust undoes "pinned" if the window failed)
       notify(`Could not save note: ${cause}`);
       return null;
     }
   };
 
-  const pinOrUnpin = async (note) => {
-    const saved = await save({ ...note, pinned: !note.pinned });
-    if (saved) notify(saved.pinned ? 'Pinned note is now on your desktop.' : 'Note unpinned and kept in your workspace.');
+  /** Makes `note` pinned (true) or unpinned (false). */
+  const setPinned = async (note, pinned) => {
+    const saved = await save({ ...note, pinned });
+    if (saved) notify(pinned ? 'Pinned note is now on your desktop.' : 'Note unpinned and kept in your workspace.');
   };
+
+  /** Menu action: flip the note's current pin state. */
+  const togglePin = (note) => setPinned(note, !note.pinned);
 
   const removeNote = async (note) => {
     if (!note.id) { setEditing(null); return; }
@@ -250,7 +259,7 @@ export default function Workspace() {
               groupTitle={regions.find((region) => region.id === note.groupId)?.title}
               menuOpen={menuNoteId === note.id}
               onToggleMenu={() => setMenuNoteId(menuNoteId === note.id ? null : note.id)}
-              onEdit={openEditor} onPinToggle={pinOrUnpin} onComplete={toggleCompleted}
+              onEdit={openEditor} onPinToggle={togglePin} onUnpin={(item) => setPinned(item, false)} onComplete={toggleCompleted}
               onDelete={removeNote} onNudge={nudgeNote}
               onDragStart={drag.startNoteDrag} onDragMove={drag.moveDrag} onDragEnd={drag.finishDrag}
             />
@@ -273,7 +282,7 @@ export default function Workspace() {
         <NoteEditor
           note={editing} regions={regions}
           onCancel={() => setEditing(null)} onSave={save} onDelete={removeNote}
-          onPin={pinOrUnpin} onComplete={toggleCompleted} onNotify={notify}
+          onPin={(draft) => setPinned(draft, draft.pinned)} onComplete={toggleCompleted} onNotify={notify}
         />
       )}
       {settingsOpen && (

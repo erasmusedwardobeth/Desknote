@@ -42,7 +42,9 @@ pub struct Note {
     pub reminder_at: Option<String>,
     #[serde(default)]
     pub reminder_sent: bool,
-    #[serde(default = "default_true")]
+    /// true = this pinned note FLOATS above other windows; false (default) = it sits
+    /// on the desktop layer, below your apps (see desktop_layer.rs).
+    #[serde(default)]
     pub always_on_top: bool,
     /// Position and size of the pinned desktop window.
     #[serde(default)]
@@ -53,11 +55,6 @@ pub struct Note {
     pub desktop_w: Option<f64>,
     #[serde(default)]
     pub desktop_h: Option<f64>,
-}
-
-/// serde default for `always_on_top`.
-pub fn default_true() -> bool {
-    true
 }
 
 /// A group (filled box) or frame (dashed outline) drawn on the canvas.

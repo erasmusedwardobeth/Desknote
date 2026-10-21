@@ -7,13 +7,15 @@
 //!
 //! Frontend wrappers: src/api/windows.js
 
+use crate::database::note_by_id;
+use crate::desktop_layer;
 use crate::models::Note;
 use crate::state::{db, AppState};
 use crate::util::now_iso;
 use rusqlite::params;
 use tauri::{
-    AppHandle, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindowBuilder,
-    WindowEvent,
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl,
+    WebviewWindowBuilder, WindowEvent,
 };
 
 /// Opens the desktop window for `note`, or updates it if it is already open.
@@ -28,9 +30,6 @@ pub fn create_pinned_window(app: &AppHandle, note: &Note) -> Result<(), String> 
     if let Some(window) = app.get_webview_window(&label) {
         window.set_title(&note.title).map_err(|e| e.to_string())?;
         window
-            .set_always_on_top(note.always_on_top)
-            .map_err(|e| e.to_string())?;
-        window
             .set_size(tauri::LogicalSize::new(
                 note.desktop_w.unwrap_or(note.w).max(250.0),
                 note.desktop_h.unwrap_or(note.h).max(180.0),
@@ -42,6 +41,7 @@ pub fn create_pinned_window(app: &AppHandle, note: &Note) -> Result<(), String> 
                 note.desktop_y.unwrap_or(note.y).max(0.0),
             ))
             .map_err(|e| e.to_string())?;
+        desktop_layer::apply(&window, note.always_on_top)?;
         window.show().map_err(|e| e.to_string())?;
         return Ok(());
     }
@@ -60,10 +60,12 @@ pub fn create_pinned_window(app: &AppHandle, note: &Note) -> Result<(), String> 
         )
         .decorations(false)
         .resizable(true)
-        .always_on_top(note.always_on_top)
         .skip_taskbar(true)
+        .visible(false) // shown only after it is placed on the right layer
         .build()
         .map_err(|e| e.to_string())?;
+    desktop_layer::apply(&window, note.always_on_top)?;
+    window.show().map_err(|e| e.to_string())?;
 
     // A pinned note cannot be closed with the OS; moving/resizing it is remembered.
     let app_handle = app.clone();
@@ -84,13 +86,57 @@ pub fn pin_note(note: Note, app: AppHandle) -> Result<(), String> {
     create_pinned_window(&app, &note)
 }
 
-/// Frontend: unpinNote(id) — close the desktop window (the note itself is kept).
-#[tauri::command]
-pub fn unpin_note(id: i64, app: AppHandle) -> Result<(), String> {
+/// Closes the desktop window of a note, if it has one. The note itself is kept.
+pub fn close_pinned_window(app: &AppHandle, id: i64) -> Result<(), String> {
     if let Some(window) = app.get_webview_window(&format!("note-{id}")) {
         window.destroy().map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+
+/// Frontend: unpinNote(id) — close the desktop window (the note itself is kept).
+#[tauri::command]
+pub fn unpin_note(id: i64, app: AppHandle) -> Result<(), String> {
+    close_pinned_window(&app, id)
+}
+
+/// Frontend: setNotePinned(id, pinned) — THE way to pin or unpin.
+/// Updates the database AND opens/closes the desktop window as ONE operation, so a note
+/// can never be marked pinned without a window. If the window cannot be created, the
+/// database change is undone and the error text is returned to the screen.
+/// It is `async` so window creation never blocks the app's main thread.
+#[tauri::command]
+pub async fn set_note_pinned(
+    id: i64,
+    pinned: bool,
+    state: State<'_, AppState>,
+    app: AppHandle,
+) -> Result<Note, String> {
+    let note = {
+        let conn = db(&state)?;
+        let changed = conn
+            .execute(
+                "UPDATE notes SET pinned=?1,updated=?2 WHERE id=?3",
+                params![pinned as i64, now_iso(), id],
+            )
+            .map_err(|e| e.to_string())?;
+        if changed != 1 {
+            return Err("This note no longer exists".into());
+        }
+        note_by_id(&conn, id)?
+    };
+    if pinned {
+        if let Err(error) = create_pinned_window(&app, &note) {
+            if let Ok(conn) = db(&state) {
+                let _ = conn.execute("UPDATE notes SET pinned=0 WHERE id=?1", [id]);
+            }
+            return Err(format!("Could not open the desktop window: {error}"));
+        }
+    } else {
+        close_pinned_window(&app, id)?;
+    }
+    let _ = app.emit("notes-changed", id);
+    Ok(note)
 }
 
 /// Frontend: setNoteTitle(id, title) — keeps the OS window title in sync with the note.
@@ -102,7 +148,8 @@ pub fn set_note_title(id: i64, title: String, app: AppHandle) -> Result<(), Stri
     Ok(())
 }
 
-/// Frontend: toggleAlwaysOnTop(id) — flips "keep above other windows". Returns the new value.
+/// Frontend: toggleAlwaysOnTop(id) — flips "float above windows" (true) / "sit on the desktop layer" (false).
+/// Returns the new value.
 #[tauri::command]
 pub fn toggle_always_on_top(
     id: i64,
@@ -123,7 +170,7 @@ pub fn toggle_always_on_top(
     .map_err(|e| e.to_string())?;
     drop(conn);
     if let Some(window) = app.get_webview_window(&format!("note-{id}")) {
-        window.set_always_on_top(next).map_err(|e| e.to_string())?;
+        desktop_layer::apply(&window, next)?;
     }
     Ok(next)
 }

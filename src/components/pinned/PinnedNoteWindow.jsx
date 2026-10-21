@@ -10,11 +10,13 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { completeNote, deleteNote, saveNote } from '../../api/notes.js';
-import { setNoteTitle, showWorkspace, toggleAlwaysOnTop, unpinNote } from '../../api/windows.js';
+import { setNotePinned, setNoteTitle, showWorkspace, toggleAlwaysOnTop, unpinNote } from '../../api/windows.js';
 import { useBoardData } from '../../hooks/useBoardData.js';
 import { nextOccurrence } from '../../lib/dates.js';
+import { confirmAction } from '../../lib/dialogs.js';
 import { parseChecklist, stripTags } from '../../lib/noteUtils.js';
 import NoteEditor from '../editor/NoteEditor.jsx';
+import PinIcon from '../ui/PinIcon.jsx';
 import PopupMenu from '../ui/PopupMenu.jsx';
 import Toast from '../ui/Toast.jsx';
 import PinnedChecklist from './PinnedChecklist.jsx';
@@ -45,7 +47,7 @@ export default function PinnedNoteWindow({ noteId }) {
   const unpin = async (draft = note) => {
     try {
       await saveNote({ ...draft, pinned: false });
-      await unpinNote(noteId);
+      await setNotePinned(noteId, false); // also closes this window
     } catch (cause) { setToast(String(cause)); }
   };
 
@@ -88,6 +90,10 @@ export default function PinnedNoteWindow({ noteId }) {
     <article className="pinned-note-window" style={{ background: note.color }}>
       <header className="pinned-note-header" data-tauri-drag-region>
         <span className="pinned-note-title">{note.title || 'Untitled'}</span>
+        <button
+          className="pin-toggle" title="Pinned to desktop — click to unpin" aria-label="Unpin from desktop"
+          onClick={async () => { if (await confirmAction(`Unpin “${note.title || 'Untitled'}” from the desktop?`)) unpin(note); }}
+        ><PinIcon /></button>
         <button className="note-ellipsis" aria-label="Note actions" onClick={() => setMenuOpen((value) => !value)}>⋯</button>
       </header>
       <div className="pinned-note-body">
@@ -106,7 +112,7 @@ export default function PinnedNoteWindow({ noteId }) {
           { label: 'Edit note', onClick: () => setEditing(true) },
           { label: 'Unpin from desktop', onClick: () => unpin(note) },
           {
-            label: note.alwaysOnTop === false ? 'Keep above windows' : 'Allow other windows above',
+            label: note.alwaysOnTop ? 'Sit on the desktop layer' : 'Float above windows',
             onClick: async () => { try { await toggleAlwaysOnTop(noteId); await reload(); } catch (cause) { setToast(String(cause)); } },
           },
         ]} />

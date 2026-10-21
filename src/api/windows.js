@@ -4,7 +4,13 @@
  */
 import { invoke } from '@tauri-apps/api/core';
 
-/** Opens (or refreshes) the desktop window of a note. */
+/**
+ * THE way to pin/unpin: updates the database and opens/closes the desktop window as one
+ * operation (Rust: set_note_pinned). Resolves to the updated note; rejects with a readable
+ * message if the desktop window could not be created.
+ */
+export const setNotePinned = (id, pinned) => invoke('set_note_pinned', { id, pinned });
+/** Opens (or refreshes) the desktop window of a note. (Prefer setNotePinned.) */
 export const pinNote = (note) => invoke('pin_note', { note });
 /** Closes the desktop window of a note (the note itself is kept). */
 export const unpinNote = (id) => invoke('unpin_note', { id });

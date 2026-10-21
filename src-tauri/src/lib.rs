@@ -8,10 +8,12 @@
 //!   commands/          everything the frontend can call with invoke(...)
 //!       notes.rs, regions.rs, settings.rs, backup.rs
 //!   window_manager.rs  pinned note windows, hiding/showing the workspace, quitting
+//!   desktop_layer.rs   OS-specific: keeps pinned notes on the desktop layer (survive Win+D)
 //!   reminders.rs       background thread that fires reminder notifications
 
 mod commands;
 mod database;
+mod desktop_layer;
 mod models;
 mod reminders;
 mod state;
@@ -31,6 +33,9 @@ fn should_start_hidden() -> bool {
 
 /// Builds and runs the Tauri app. Called from main.rs.
 pub fn run() {
+    // Must happen before any window exists (forces XWayland on Linux).
+    desktop_layer::prepare_backend();
+
     let mut builder = tauri::Builder::default().plugin(
         tauri_plugin_autostart::Builder::new()
             .args(["--background"])
@@ -83,6 +88,7 @@ pub fn run() {
             commands::backup::export_backup,
             commands::backup::import_backup,
             window_manager::pin_note,
+            window_manager::set_note_pinned,
             window_manager::unpin_note,
             window_manager::set_note_title,
             window_manager::toggle_always_on_top,
