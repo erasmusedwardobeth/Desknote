@@ -1,0 +1,26 @@
+/* editor.css — components/editor/* (title, body, checklist, schedule fields) */
+.title-input { display: block; width: 100%; font: 700 23px Inter, system-ui, sans-serif; letter-spacing: -.5px; border: 0; outline: 0; background: transparent; color: #2e312c; margin: 15px 0 14px; }
+.title-input::placeholder { color: #b0b2aa; }
+.formatbar { height: 36px; border: 1px solid var(--line); border-radius: 8px; display: flex; align-items: center; gap: 2px; padding: 3px 5px; background: #fffefa; }
+.formatbar button { min-width: 29px; height: 27px; border-radius: 5px; }
+.formatbar button:hover { background: #eeeee7; }
+.editor-help { font-size: 11px; color: #8b8e85; }
+.color-pick { width: 22px; height: 22px; overflow: hidden; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #d9d7cc; cursor: pointer; }
+.color-pick input { width: 34px; height: 34px; padding: 0; border: 0; transform: translate(-6px, -6px); cursor: pointer; }
+.note-body { min-height: 122px; max-height: 240px; overflow: auto; padding: 15px 2px 12px; outline: none; font-size: 14px; line-height: 1.65; color: #4f534b; }
+.note-textarea { display: block; width: 100%; resize: vertical; border: 0; background: transparent; font: inherit; min-height: 125px; }
+
+/* checklist */
+.check-section { border-top: 1px solid var(--line); padding-top: 13px; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: .11em; color: #84877f; display: flex; align-items: center; justify-content: space-between; }
+.section-label button { border: 0; background: transparent; color: #59765d; font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; }
+.check-row { display: flex; align-items: center; gap: 10px; padding: 7px 1px; font-size: 13px; }
+.check-row input { accent-color: var(--green); }
+.check-row button { border: 0; background: transparent; color: #969990; cursor: pointer; font-size: 18px; opacity: 0; }
+.check-row:hover button { opacity: 1; }
+.check-text-input { flex: 1; min-width: 0; border: 0; background: transparent; color: #454941; font: inherit; font-size: 13px; outline: 0; }
+
+/* due / reminder / repeat / group */
+.schedule { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 15px; }
+.schedule label { min-width: 0; font-size: 10px; color: #82867d; font-weight: 600; letter-spacing: .03em; }
+.schedule input, .schedule select { display: block; width: 100%; margin-top: 6px; border: 1px solid var(--line); border-radius: 7px; padding: 8px; background: #fffefa; color: #484b45; font: inherit; font-size: 12px; }

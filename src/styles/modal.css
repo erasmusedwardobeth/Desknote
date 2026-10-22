@@ -1,0 +1,12 @@
+/* modal.css — components/ui/Modal.jsx and ModalHeader.jsx (frame shared by editor and settings) */
+.modal-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: #2528206b; backdrop-filter: blur(3px); }
+.editor { border: 1px solid #e7e5dc; border-radius: 16px; padding: 0; background: #fbfaf6; color: var(--ink); box-shadow: 0 24px 80px #20231c35; width: min(570px, calc(100vw - 32px)); max-height: 90vh; }
+.modal-backdrop .editor { display: block; position: relative; inset: auto; margin: auto; max-height: 90vh; overflow: auto; }
+.editor::backdrop { background: #2528206b; backdrop-filter: blur(3px); }
+.editor form { padding: 23px 25px 19px; }
+.editor-head { display: flex; align-items: center; justify-content: space-between; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #85897f; }
+.icon-btn { font-size: 23px; width: 30px; height: 30px; border-radius: 8px; }
+.icon-btn:hover { background: #efeee8; }
+.editor-actions { display: flex; align-items: center; margin-top: 21px; padding-top: 14px; border-top: 1px solid var(--line); gap: 8px; }
+.bar-spacer { flex: 1; }

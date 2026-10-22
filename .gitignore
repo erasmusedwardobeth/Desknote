@@ -4,3 +4,5 @@ src-tauri/target/
 *.log
 
 __pycache__/
+
+changes/
