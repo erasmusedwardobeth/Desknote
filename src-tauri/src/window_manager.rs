@@ -139,6 +139,28 @@ pub async fn set_note_pinned(
     Ok(note)
 }
 
+/// Temporarily switches a pinned note to an interactive window hint during mouse gestures.
+#[tauri::command]
+pub fn set_pinned_window_interactive(
+    id: i64,
+    active: bool,
+    state: State<'_, AppState>,
+    app: AppHandle,
+) -> Result<(), String> {
+    let conn = db(&state)?;
+    let always_on_top: i64 = conn
+        .query_row("SELECT always_on_top FROM notes WHERE id=?1", [id], |row| row.get(0))
+        .map_err(|e| e.to_string())?;
+    drop(conn);
+    if always_on_top != 0 {
+        return Ok(());
+    }
+    if let Some(window) = app.get_webview_window(&format!("note-{id}")) {
+        desktop_layer::set_interactive(&window, active)?;
+    }
+    Ok(())
+}
+
 /// Frontend: setNoteTitle(id, title) — keeps the OS window title in sync with the note.
 #[tauri::command]
 pub fn set_note_title(id: i64, title: String, app: AppHandle) -> Result<(), String> {

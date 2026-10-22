@@ -91,6 +91,7 @@ pub fn run() {
             window_manager::set_note_pinned,
             window_manager::unpin_note,
             window_manager::set_note_title,
+            window_manager::set_pinned_window_interactive,
             window_manager::toggle_always_on_top,
             window_manager::hide_workspace,
             window_manager::show_workspace,

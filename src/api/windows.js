@@ -15,6 +15,8 @@ export const pinNote = (note) => invoke('pin_note', { note });
 /** Closes the desktop window of a note (the note itself is kept). */
 export const unpinNote = (id) => invoke('unpin_note', { id });
 export const setNoteTitle = (id, title) => invoke('set_note_title', { id, title });
+/** Temporarily enables pointer-driven move/resize for a pinned desktop window. */
+export const setPinnedWindowInteractive = (id, active) => invoke('set_pinned_window_interactive', { id, active });
 export const toggleAlwaysOnTop = (id) => invoke('toggle_always_on_top', { id });
 /** Hides the workspace window. Pinned notes stay visible. */
 export const hideWorkspace = () => invoke('hide_workspace');
