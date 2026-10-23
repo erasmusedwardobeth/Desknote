@@ -1,22 +1,145 @@
 /* note-card.css — components/workspace/NoteCard.jsx */
-.note-card { position: absolute; border-radius: 5px 5px 4px 4px; padding: 16px 17px 13px; box-shadow: 0 5px 14px #393b3010, 0 1px 2px #393b3015; border: 1px solid #24271a12; display: flex; flex-direction: column; user-select: none; cursor: grab; overflow: hidden; transition: box-shadow .15s; touch-action: none; }
-.note-card:hover { box-shadow: 0 8px 22px #30332920, 0 1px 3px #3033291d; z-index: 2; }
-.note-card:active { cursor: grabbing; }
-.note-card:focus-visible { box-shadow: 0 0 0 3px #52785888, 0 8px 20px #393b3020; }
-.card-title { font: 700 14px Inter, system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #343630; display: flex; gap: 5px; }
-.pin { font-size: 12px; }
-.card-body { margin-top: 12px; font-size: 12px; line-height: 1.55; color: #555951; white-space: pre-wrap; overflow: hidden; flex: 1; }
-.card-meta { display: flex; gap: 12px; color: #777b70; font-size: 10px; align-items: center; }
-.resize-handle { position: absolute; right: 0; bottom: 0; width: 14px; height: 14px; border: 0; background: linear-gradient(135deg, transparent 48%, #b6ae80 50%, #b6ae80 57%, transparent 59%, transparent 67%, #b6ae80 69%, #b6ae80 76%, transparent 78%); cursor: nwse-resize; }
+.note-card {
+    position: absolute;
+    border-radius: 5px 5px 4px 4px;
+    padding: 16px 17px 13px;
+    box-shadow:
+        0 5px 14px #393b3010,
+        0 1px 2px #393b3015;
+    border: 1px solid #24271a12;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    cursor: grab;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+    touch-action: none;
+}
+
+.note-card:hover {
+    box-shadow:
+        0 8px 22px #30332920,
+        0 1px 3px #3033291d;
+    z-index: 2;
+}
+
+.note-card:active {
+    cursor: grabbing;
+}
+
+.note-card:focus-visible {
+    box-shadow:
+        0 0 0 3px #52785888,
+        0 8px 20px #393b3020;
+}
+
+.card-title {
+    font:
+        700 14px Inter,
+        system-ui,
+        sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #343630;
+    display: flex;
+    gap: 5px;
+}
+
+.pin {
+    font-size: 1rem;
+}
+
+.card-body {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #555951;
+    white-space: pre-wrap;
+    overflow: hidden;
+    flex: 1;
+}
+
+.card-meta {
+    display: flex;
+    gap: 12px;
+    color: #777b70;
+    font-size: 10px;
+    align-items: center;
+}
+
+.resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 14px;
+    height: 14px;
+    border: 0;
+    background: linear-gradient(135deg,
+            transparent 48%,
+            #b6ae80 50%,
+            #b6ae80 57%,
+            transparent 59%,
+            transparent 67%,
+            #b6ae80 69%,
+            #b6ae80 76%,
+            transparent 78%);
+    cursor: nwse-resize;
+}
 
 /* completed notes are dimmed */
-.is-completed .card-title, .is-completed .card-body { opacity: .58; }
-.complete-label { margin-left: auto; font-size: 9px; font-weight: 600; color: #6e7868; }
+.is-completed .card-title,
+.is-completed .card-body {
+    opacity: 0.58;
+}
+
+.complete-label {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 600;
+    color: #6e7868;
+}
 
 /* the "⋯" button appears on hover or keyboard focus */
-.card-menu-trigger { position: absolute; right: 8px; top: 7px; width: 25px; height: 22px; border: 0; border-radius: 6px; background: #ffffff66; color: #51554e; font-size: 18px; line-height: 1; opacity: 0; cursor: pointer; }
-.note-card:hover .card-menu-trigger, .card-menu-trigger:focus-visible, .note-card:focus-visible .card-menu-trigger, .note-card:focus-within .card-menu-trigger { opacity: 1; }
+.card-menu-trigger {
+    position: absolute;
+    right: 8px;
+    top: 7px;
+    width: 25px;
+    height: 22px;
+    border: 0;
+    border-radius: 6px;
+    background: #ffffff66;
+    color: #51554e;
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.note-card:hover .card-menu-trigger,
+.card-menu-trigger:focus-visible,
+.note-card:focus-visible .card-menu-trigger,
+.note-card:focus-within .card-menu-trigger {
+    opacity: 1;
+}
 
 /* pin icon: only shown on pinned notes; click asks "Unpin?" (top right, left of the "⋯" button) */
-.pin-toggle { position: absolute; right: 38px; top: 7px; width: 25px; height: 22px; border: 0; border-radius: 6px; background: #ffffff66; color: #51554e; cursor: pointer; display: grid; place-items: center; }
-.pin-toggle:hover { background: #ffffffb0; }
+.pin-toggle {
+    position: absolute;
+    right: 38px;
+    top: 7px;
+    width: 25px;
+    height: 22px;
+    border: 0;
+    border-radius: 6px;
+    background: #ffffff66;
+    color: #51554e;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.pin-toggle:hover {
+    background: #ffffffb0;
+}

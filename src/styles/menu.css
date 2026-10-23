@@ -1,4 +1,32 @@
 /* menu.css — components/ui/PopupMenu.jsx (note, group/frame and pinned-note "⋯" menus) */
-.card-menu, .pinned-note-menu { position: absolute; z-index: 20; right: 9px; top: 34px; min-width: 165px; padding: 5px; background: #fffefa; border: 1px solid #e5e2d8; border-radius: 9px; box-shadow: 0 8px 26px #2528202b; display: flex; flex-direction: column; }
-.card-menu button, .pinned-note-menu button { border: 0; background: transparent; text-align: left; padding: 9px 10px; border-radius: 6px; color: #464a42; font: inherit; font-size: 12px; cursor: pointer; }
-.card-menu button:hover, .pinned-note-menu button:hover { background: #f0efe9; }
+.card-menu,
+.pinned-note-menu {
+  position: absolute;
+  z-index: 20;
+  right: 9px;
+  top: 34px;
+  min-width: 165px;
+  padding: 5px;
+  background: #fffefa;
+  border: 1px solid #e5e2d8;
+  border-radius: 9px;
+  box-shadow: 0 8px 26px #2528202b;
+  display: flex;
+  flex-direction: column;
+}
+.card-menu button,
+.pinned-note-menu button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 9px 10px;
+  border-radius: 6px;
+  color: #464a42;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.card-menu button:hover,
+.pinned-note-menu button:hover {
+  background: #f0efe9;
+}

@@ -26,7 +26,7 @@ A **lightweight personal desktop app** whose main purpose is to make sure you **
 
 ### Core
 
-- **Daily and Weekly scroll/board** permanently visible on the desktop.
+- **Daily and Weekly scroll/board** 
 - Automatically starts when the computer starts.
 - Sticky notes that can be created, edited, moved, resized, styled and scheduled.
 - Notes can be **pinned to the desktop**, shown temporarily, or kept hidden.
@@ -39,7 +39,7 @@ A **FigJam-like freeform canvas** where you can:
 
 - Create unlimited sticky notes.
 - Drag them anywhere.
-- Zoom in/out.
+- Zoom in/out on any selected note, frame, group or the canvas itself like in  figma project workspac ui.
 - Group related notes into visual **clusters**.
 - Create larger areas/frames for projects or themes.
 - See your entire collection of thoughts/tasks at once.
@@ -62,7 +62,7 @@ But the canvas remains freeform—you don't have to organize everything hierarch
 ## Current clarifications from the user (2026-10-05)
 
 - On app startup, show only notes that are pinned to the desktop.
-- Pinned desktop notes must not be minimized, including when the user presses Ctrl+D or closes a note window. A pinned note can be dismissed only through its top-right ellipsis menu by unpinning it.
+- Pinned desktop notes must not be minimized, including when the user presses Ctrl+D or closes a note window. A pinned note can be dismissed only b clicking its pin icon and confirming removal dialog to unpin it either ondesktop or workspace.
 - Do not lock the project to the current Tauri/Rust stack. The user knows JavaScript, React, Next.js, TypeScript, Python, and PyQt; choose technology based on the desktop app requirements.
 - The app is desktop software and should be portable across platforms, compiled/distributed as an executable.
 - Taskbar behavior needs clarification: user says the app should show as running on the taskbar unless they access the frame/grouping workspace.

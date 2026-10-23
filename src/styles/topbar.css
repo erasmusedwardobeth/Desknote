@@ -1,13 +1,76 @@
 /* topbar.css — components/workspace/TopBar.jsx */
-.workspace-app { min-width: 720px; width: 100vw; height: 100vh; }
-.topbar { height: 64px; display: flex; align-items: center; padding: 0 26px; border-bottom: 1px solid var(--line); background: rgba(250, 249, 245, .93); gap: 28px; position: relative; z-index: 4; }
-.brand { font: 800 17px Inter, system-ui, sans-serif; display: flex; align-items: center; gap: 10px; letter-spacing: -.5px; }
-.brand-mark { width: 27px; height: 27px; border-radius: 9px; background: #dbe8d9; color: #45664a; display: grid; place-items: center; font: 800 18px Inter, system-ui, sans-serif; }
-.views { display: flex; gap: 4px; height: 100%; align-items: center; }
-.view { padding: 8px 13px; border-radius: 8px; }
-.view:hover, .quiet:hover { background: #efeee8; }
-.view.active { background: #e8e8df; color: #383b35; font-weight: 600; }
-.top-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.quiet { padding: 9px 11px; border-radius: 8px; }
-.quiet.enabled { color: #456b4d; background: #e5eee3; }
-.quiet.enabled:before { content: '✓ '; }
+.workspace-app {
+  min-width: 720px;
+  width: 100vw;
+  height: 100vh;
+}
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 26px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(250, 249, 245, 0.93);
+  gap: 28px;
+  position: relative;
+  z-index: 4;
+}
+.brand {
+  font:
+    800 17px Inter,
+    system-ui,
+    sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.5px;
+}
+.brand-mark {
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  background: #dbe8d9;
+  color: #45664a;
+  display: grid;
+  place-items: center;
+  font:
+    800 18px Inter,
+    system-ui,
+    sans-serif;
+}
+.views {
+  display: flex;
+  gap: 4px;
+  height: 100%;
+  align-items: center;
+}
+.view {
+  padding: 8px 13px;
+  border-radius: 8px;
+}
+.view:hover,
+.quiet:hover {
+  background: #efeee8;
+}
+.view.active {
+  background: #e8e8df;
+  color: #383b35;
+  font-weight: 600;
+}
+.top-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quiet {
+  padding: 9px 11px;
+  border-radius: 8px;
+}
+.quiet.enabled {
+  color: #456b4d;
+  background: #e5eee3;
+}
+.quiet.enabled:before {
+  content: "✓ ";
+}

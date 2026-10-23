@@ -1,9 +1,9 @@
 /* theme.css — design variables. Use var(--name) in other files instead of hard-coding colors. */
 :root {
-  --ink: #292c28;        /* main text */
-  --muted: #777b72;      /* secondary text */
-  --line: #e7e5dc;       /* borders and dividers */
-  --paper: #f6f5f0;      /* page background */
-  --green: #547b61;      /* primary accent (buttons) */
+  --ink: #292c28; /* main text */
+  --muted: #777b72; /* secondary text */
+  --line: #e7e5dc; /* borders and dividers */
+  --paper: #130e3f; /* page background */
+  --green: #547b61; /* primary accent (buttons) */
   --green-dark: #42674f; /* primary accent on hover */
 }

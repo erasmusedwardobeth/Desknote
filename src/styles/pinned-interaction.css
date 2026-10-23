@@ -2,20 +2,97 @@
    Imported directly by components/pinned/PinnedNoteWindow.jsx. */
 
 /* ARRANGE MODE: dashed outline + the header becomes a drag handle */
-.pinned-note-window.arranging { outline: 2px dashed #547b5b; outline-offset: -3px; }
-.pinned-note-header.arranging { cursor: move; touch-action: none; user-select: none; }
-.pinned-note-header .pinned-done { padding: 4px 12px; font-size: 12px; }
-.pinned-note-header .pin-arrange { border: 0; background: transparent; color: #565a52; width: 25px; height: 22px; border-radius: 6px; cursor: pointer; font-size: 15px; line-height: 1; }
-.pinned-note-header .pin-arrange:hover { background: #ffffff70; }
+.pinned-note-window.arranging {
+  outline: 2px dashed #547b5b;
+  outline-offset: -3px;
+}
+.pinned-note-header.arranging {
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+}
+.pinned-note-header .pinned-done {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.pinned-note-header .pin-arrange {
+  border: 0;
+  background: transparent;
+  color: #565a52;
+  width: 25px;
+  height: 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.pinned-note-header .pin-arrange:hover {
+  background: #ffffff70;
+}
 
 /* resize strips on the right and bottom edges plus a visible corner grip (arrange mode only) */
-.pinned-resize { position: absolute; z-index: 5; touch-action: none; user-select: none; }
-.pinned-resize.right  { top: 38px; right: 0; bottom: 14px; width: 9px; cursor: ew-resize; }
-.pinned-resize.bottom { left: 0; right: 14px; bottom: 0; height: 9px; cursor: ns-resize; }
-.pinned-resize.corner { right: 0; bottom: 0; width: 18px; height: 18px; cursor: nwse-resize;
-  background: linear-gradient(135deg, transparent 48%, #8f917f 50%, #8f917f 57%, transparent 59%, transparent 67%, #8f917f 69%, #8f917f 76%, transparent 78%); opacity: .8; }
+.pinned-resize {
+  position: absolute;
+  z-index: 5;
+  touch-action: none;
+  user-select: none;
+}
+.pinned-resize.right {
+  top: 38px;
+  right: 0;
+  bottom: 14px;
+  width: 9px;
+  cursor: ew-resize;
+}
+.pinned-resize.bottom {
+  left: 0;
+  right: 14px;
+  bottom: 0;
+  height: 9px;
+  cursor: ns-resize;
+}
+.pinned-resize.corner {
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 48%,
+    #8f917f 50%,
+    #8f917f 57%,
+    transparent 59%,
+    transparent 67%,
+    #8f917f 69%,
+    #8f917f 76%,
+    transparent 78%
+  );
+  opacity: 0.8;
+}
 
 /* "Unpin?" question drawn over the note */
-.inline-confirm { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; text-align: center; background: rgba(251, 250, 246, .94); border-radius: 7px; }
-.inline-confirm p { margin: 0; font-size: 13px; font-weight: 600; color: #343630; }
-.inline-confirm-actions { display: flex; gap: 8px; }
+.inline-confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(251, 250, 246, 0.94);
+  border-radius: 7px;
+}
+.inline-confirm p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343630;
+}
+.inline-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
