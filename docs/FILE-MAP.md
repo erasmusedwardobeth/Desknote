@@ -69,3 +69,29 @@ Button in a component
    add a wrapper in `api/…`.
 4. **Colors/spacing** go in `styles/theme.css` as variables, not scattered as hex codes.
 5. **One component = one file = one job.** If a file passes ~200 lines, split it.
+
+---------------------------------------------------------------------------------------------
+## Workspaces, panels, selection and menus (phase 3)
+
+| I want to change…                                   | Open this file                                        |
+|-----------------------------------------------------|-------------------------------------------------------|
+| The layers tree on the left                         | `components/panels/LeftPanel.jsx` · `lib/tree.js`     |
+| What the right panel shows for the selection        | `components/panels/RightPanel.jsx` (chooses) + `WorkspaceProps` / `NoteProps` / `RegionProps` / `MultiProps` |
+| Background color swatches / image options           | `components/panels/WorkspaceProps.jsx` · `lib/palette.js` |
+| How background color/image/grid become CSS          | `lib/background.js`                                   |
+| The items of each right-click menu                  | `lib/menus.js`                                        |
+| How a right-click menu looks / behaves              | `components/ui/ContextMenu.jsx` · `styles/context-menu.css` |
+| Which workspace is open, create/rename/delete       | `hooks/useWorkspaces.js` · `src-tauri/src/commands/workspaces.rs` |
+| Each workspace's own zoom + pan                     | `hooks/useWorkspaceView.js`                           |
+| Selection rules (click, shift, rectangle)           | `lib/selection.js`                                    |
+| Dragging, rectangle select, Space-pan, group carries notes | `hooks/useCanvasDrag.js`                       |
+| Which group/frame a dropped note joins              | `lib/scope.js` → `regionAt`                           |
+| Zoom math (toward cursor, fit, per-object)          | `lib/zoom.js`                                         |
+| Align / distribute                                  | `lib/transform.js`                                    |
+| The loading screen                                  | `components/ui/SplashScreen.jsx` · `styles/splash.css` |
+| Copying a background image into the app folder      | `src-tauri/src/commands/workspaces.rs` → `import_image` |
+| The SQL for notes / groups / workspaces             | `src-tauri/src/database.rs` (insert_* / update_*)     |
+| Palette (blue, aqua, gold …)                        | `styles/theme.css` (variables) · `lib/palette.js` (swatches) |
+
+Selection ids are strings: "note:12", "frame:3", "group:5", "workspace:1" (same ids as the tree).
+Automated tests for the logic modules: `node --test tests/*.test.mjs`

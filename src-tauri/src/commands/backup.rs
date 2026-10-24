@@ -1,12 +1,19 @@
 //! commands/backup.rs — export everything to a JSON file, or restore from one.
 //! Frontend wrappers: src/api/settings.js (exportBackup / importBackup)
+//!
+//! A backup holds workspaces, notes and groups/frames. Older backups (made before workspaces
+//! existed) have no workspaces: they are restored into ONE default workspace.
 
-use crate::database::{all_notes, all_regions, workspace_view_from_connection};
-use crate::models::BackupFile;
+use crate::commands::workspaces::validate_workspace;
+use crate::database::{
+    all_notes, all_regions, all_workspaces, insert_note, insert_region, insert_workspace,
+    workspace_view_from_connection,
+};
+use crate::models::{BackupFile, Workspace};
 use crate::state::{db, AppState};
 use crate::util::now_iso;
 use crate::window_manager::create_pinned_window;
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 use tauri::{AppHandle, Manager, State};
 
 /// Reads the whole database into a BackupFile.
@@ -18,6 +25,7 @@ fn backup_from_connection(conn: &Connection) -> Result<BackupFile, String> {
         notes: all_notes(conn)?,
         regions: all_regions(conn)?,
         workspace_view: workspace_view_from_connection(conn),
+        workspaces: all_workspaces(conn)?,
     })
 }
 
@@ -44,6 +52,21 @@ fn validate_backup(backup: &BackupFile) -> Result<(), String> {
     {
         return Err("The backup contains an invalid workspace view.".into());
     }
+
+    // Workspaces: unique ids, valid fields.
+    let mut workspace_ids = std::collections::HashSet::new();
+    for workspace in &backup.workspaces {
+        validate_workspace(workspace)?;
+        match workspace.id {
+            Some(id) if workspace_ids.insert(id) => {}
+            _ => return Err("The backup contains missing or duplicate workspace identifiers.".into()),
+        }
+    }
+    let known_workspace = |id: Option<i64>| match id {
+        None => true,
+        Some(id) => backup.workspaces.is_empty() || workspace_ids.contains(&id),
+    };
+
     let mut note_ids = std::collections::HashSet::new();
     if backup
         .notes
@@ -52,21 +75,24 @@ fn validate_backup(backup: &BackupFile) -> Result<(), String> {
     {
         return Err("The backup contains missing or duplicate note identifiers.".into());
     }
-    let mut region_kinds = std::collections::HashMap::new();
+    let mut region_ids = std::collections::HashSet::new();
     if backup.regions.iter().any(|region| {
-        region
-            .id
-            .is_none_or(|id| region_kinds.insert(id, region.kind.as_str()).is_some())
+        region.id.is_none_or(|id| !region_ids.insert(id))
             || !matches!(region.kind.as_str(), "group" | "frame")
+            || !known_workspace(region.workspace_id)
             || !region.x.is_finite()
             || !region.y.is_finite()
             || !region.w.is_finite()
             || !region.h.is_finite()
             || region.w < 1.0
             || region.h < 1.0
-    }) || backup.notes.iter().any(|note| {
-        note.group_id
-            .is_some_and(|id| region_kinds.get(&id) != Some(&"group"))
+    }) {
+        return Err("The backup contains an invalid group or frame.".into());
+    }
+    // A note may belong to a group OR a frame.
+    if backup.notes.iter().any(|note| {
+        note.group_id.is_some_and(|id| !region_ids.contains(&id))
+            || !known_workspace(note.workspace_id)
             || !note.x.is_finite()
             || !note.y.is_finite()
             || !note.w.is_finite()
@@ -87,7 +113,7 @@ fn validate_backup(backup: &BackupFile) -> Result<(), String> {
     Ok(())
 }
 
-/// Replaces ALL notes and regions with the contents of a backup file.
+/// Replaces ALL workspaces, notes and regions with the contents of a backup file.
 /// Safety: validates first, saves an automatic recovery copy, and uses one
 /// transaction, so a failure leaves the current data untouched.
 /// Returns the path of the recovery copy.
@@ -122,6 +148,25 @@ pub fn import_backup(
     )
     .map_err(|error| format!("Could not create a recovery backup; restore cancelled: {error}"))?;
 
+    // Workspaces to restore. An old backup has none: make one default workspace from it.
+    let mut workspaces: Vec<Workspace> = backup.workspaces.clone();
+    if workspaces.is_empty() {
+        workspaces.push(Workspace {
+            id: Some(1),
+            name: "My workspace".into(),
+            bg_color: "#f8f7f3".into(),
+            bg_image: None,
+            bg_fit: "cover".into(),
+            bg_opacity: 1.0,
+            grid: true,
+            zoom: backup.workspace_view.zoom,
+            shift_x: backup.workspace_view.shift_x,
+            shift_y: backup.workspace_view.shift_y,
+            sort_order: 0,
+        });
+    }
+    let default_workspace = workspaces[0].id;
+
     // Replace the data in one transaction.
     let transaction = conn.transaction().map_err(|error| error.to_string())?;
     transaction
@@ -130,34 +175,25 @@ pub fn import_backup(
     transaction
         .execute("DELETE FROM regions", [])
         .map_err(|error| error.to_string())?;
-    let workspace_view =
-        serde_json::to_string(&backup.workspace_view).map_err(|error| error.to_string())?;
-    transaction.execute(
-        "INSERT INTO app_settings(key,value) VALUES('workspace_view',?1) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-        [workspace_view],
-    ).map_err(|error| error.to_string())?;
-    for note in &backup.notes {
-        transaction.execute(
-            "INSERT INTO notes(id,title,body,x,y,w,h,color,pinned,due,recurrence,checklist,formatting,group_id,created,updated,completed,completed_at,reminder_at,reminder_sent,always_on_top,desktop_x,desktop_y,desktop_w,desktop_h) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22,?23,?24,?25)",
-            params![note.id,note.title,note.body,note.x,note.y,note.w,note.h,note.color,note.pinned as i64,note.due,note.recurrence,note.checklist,note.formatting,note.group_id,note.created,note.updated,note.completed as i64,note.completed_at,note.reminder_at,note.reminder_sent as i64,note.always_on_top as i64,note.desktop_x,note.desktop_y,note.desktop_w,note.desktop_h],
-        ).map_err(|error| error.to_string())?;
+    transaction
+        .execute("DELETE FROM workspaces", [])
+        .map_err(|error| error.to_string())?;
+    for workspace in &workspaces {
+        insert_workspace(&transaction, workspace, true).map_err(|error| error.to_string())?;
     }
     for region in &backup.regions {
-        transaction
-            .execute(
-                "INSERT INTO regions(id,title,x,y,w,h,kind,color) VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
-                params![
-                    region.id,
-                    region.title,
-                    region.x,
-                    region.y,
-                    region.w,
-                    region.h,
-                    region.kind,
-                    region.color
-                ],
-            )
-            .map_err(|error| error.to_string())?;
+        let mut item = region.clone();
+        if item.workspace_id.is_none() {
+            item.workspace_id = default_workspace;
+        }
+        insert_region(&transaction, &item, true).map_err(|error| error.to_string())?;
+    }
+    for note in &backup.notes {
+        let mut item = note.clone();
+        if item.workspace_id.is_none() {
+            item.workspace_id = default_workspace;
+        }
+        insert_note(&transaction, &item, true).map_err(|error| error.to_string())?;
     }
     transaction.commit().map_err(|error| error.to_string())?;
     drop(conn);

@@ -3,13 +3,15 @@
  * Pure display: every action is passed in from <Workspace>.
  *
  * Props: board, onBoardChange(name), autostart, onToggleAutostart,
- *        onOpenSettings, onAddRegion('group'|'frame'), onCreateNote
+ *        onOpenSettings, onAddRegion('group'|'frame'), onCreateNote,
+ *        showLeft / showRight (is each side panel visible?), onToggleLeft(), onToggleRight()
  */
 import { BOARDS } from '../../lib/constants.js';
 
-export default function TopBar({ board, onBoardChange, autostart, onToggleAutostart, onOpenSettings, onAddRegion, onCreateNote }) {
+export default function TopBar({ showLeft, showRight, onToggleLeft, onToggleRight, board, onBoardChange, autostart, onToggleAutostart, onOpenSettings, onAddRegion, onCreateNote }) {
   return (
     <header className="topbar">
+      <button className={`panel-toggle ${showLeft ? 'on' : ''}`} onClick={onToggleLeft} aria-pressed={showLeft} aria-label="Show or hide the layers panel" title="Layers panel">◧</button>
       <div className="brand"><span className="brand-mark">d</span><span>Desknote</span></div>
       <nav className="views" aria-label="Boards">
         {BOARDS.map((name) => (
@@ -22,6 +24,7 @@ export default function TopBar({ board, onBoardChange, autostart, onToggleAutost
         <button className="quiet" onClick={() => onAddRegion('group')}>＋ Group</button>
         <button className="quiet" onClick={() => onAddRegion('frame')}>＋ Frame</button>
         <button className="primary" onClick={onCreateNote}>＋ <span>Note</span></button>
+        <button className={`panel-toggle ${showRight ? 'on' : ''}`} onClick={onToggleRight} aria-pressed={showRight} aria-label="Show or hide the properties panel" title="Properties panel">◨</button>
       </div>
     </header>
   );

@@ -1,0 +1,71 @@
+/* panels.css — components/panels/*  (left: layers tree, right: properties) */
+.left-panel, .right-panel { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 0; background: var(--panel); color: #4a4e46; }
+.left-panel { width: 248px; border-right: 1px solid var(--line); }
+.right-panel { width: 272px; border-left: 1px solid var(--line); }
+.panel-title { padding: 14px 16px 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #363a33; }
+.panel-body { flex: 1; overflow: auto; padding-bottom: 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 1000px) { .left-panel { width: 210px; } .right-panel { width: 230px; } }
+
+/* ---- layers tree ---- */
+.tree-search-label { display: block; padding: 0 12px 10px; }
+.tree-search { width: 100%; min-width: 0; border: 1px solid #e2e1d9; border-radius: 8px; padding: 8px 10px; background: #fffefa; color: #30342e; font: inherit; font-size: 12px; }
+.tree-scroll { flex: 1; overflow: auto; padding: 0 6px 8px; }
+.tree-row { display: flex; align-items: center; gap: 3px; min-height: 28px; padding-right: 8px; border-radius: 6px; font-size: 12px; cursor: default; outline: none; user-select: none; }
+.tree-row:hover { background: #eae9e1; }
+.tree-row.selected { background: var(--accent-soft); color: #1a3f8f; }
+.tree-row:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.tree-row.type-workspace { font-weight: 600; margin-top: 2px; }
+.tree-row.active-workspace .tree-label { color: var(--accent-dark); font-weight: 700; }
+.tree-twist { width: 18px; height: 22px; padding: 0; border: 0; background: transparent; color: #85897f; cursor: pointer; }
+.tree-icon { width: 16px; flex: 0 0 16px; text-align: center; color: #858c7d; }
+.tree-row.type-workspace .tree-icon { color: var(--accent); }
+.tree-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-badge { color: var(--accent); font-size: 9px; }
+.tree-rename { flex: 1; min-width: 0; padding: 3px 6px; border: 1px solid var(--accent); border-radius: 5px; background: #fff; font: inherit; outline: none; }
+.tree-empty { padding: 10px; color: #898d83; font-size: 12px; }
+.tree-add { margin: 6px 12px 12px; padding: 8px; border: 1px dashed #cfd2c6; border-radius: 7px; background: transparent; color: #6a6e64; font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.tree-add:hover { background: #eceae2; }
+
+/* ---- properties ---- */
+.panel-section { padding: 12px 16px; border-top: 1px solid var(--line); }
+.panel-section:first-child { border-top: 0; }
+.panel-section-head { display: flex; align-items: center; justify-content: space-between; }
+.panel-section-head h3 { margin: 0 0 8px; color: #82867d; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.panel-input, .panel-select { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; background: #fffefa; color: #3b3f37; font: inherit; font-size: 12.5px; }
+.panel-input:focus, .tree-search:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.panel-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12px; color: #6a6e64; }
+.panel-row .panel-select { width: auto; min-width: 110px; }
+.panel-row input[type="range"] { flex: 1; min-width: 80px; accent-color: var(--accent); }
+.panel-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #4a4e46; margin-bottom: 8px; cursor: pointer; }
+.panel-check input { accent-color: var(--accent); }
+.panel-hint { margin: 8px 0 0; color: #8a8d83; font-size: 11.5px; line-height: 1.5; }
+.panel-buttons { display: flex; gap: 6px; margin-top: 6px; }
+.panel-button { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fffefa; color: #3f433b; font: inherit; font-size: 12px; cursor: pointer; }
+.panel-button.wide { display: block; width: 100%; margin-top: 6px; }
+.panel-button:hover:not(:disabled) { background: var(--accent-soft); border-color: #c5d8fb; }
+.panel-button:disabled { color: #a9aca2; cursor: default; }
+.panel-button.danger { color: #b4443a; }
+.panel-button.danger:hover:not(:disabled) { background: #fbeceb; border-color: #f0c9c5; }
+.bg-preview { display: grid; place-items: center; min-height: 54px; margin-bottom: 4px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: repeating-conic-gradient(#e9e8e1 0 25%, #f6f5f0 0 50%) 0 0 / 14px 14px; }
+.bg-preview img { display: block; width: 100%; max-height: 120px; object-fit: cover; }
+.num-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.num-field { display: flex; align-items: center; gap: 6px; color: #82867d; font-size: 11px; font-weight: 600; }
+.num-field span { width: 12px; }
+.num-field input { width: 100%; min-width: 0; padding: 6px 7px; border: 1px solid var(--line); border-radius: 6px; background: #fffefa; color: #3b3f37; font: inherit; font-size: 12px; }
+.task-list { margin: 0; padding: 0; list-style: none; font-size: 12.5px; }
+.task-list li { padding: 3px 0; }
+.task-list label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.task-list input { margin-top: 2px; accent-color: var(--accent); }
+.task-list li.done span { text-decoration: line-through; color: #8a8d83; }
+.align-row { display: flex; gap: 4px; }
+.icon-tool { flex: 1; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: #fffefa; color: #4a4e46; font-size: 14px; cursor: pointer; }
+.icon-tool:hover { background: var(--accent-soft); }
+
+/* ---- color swatches (also used inside right-click menus) ---- */
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatch { position: relative; width: 22px; height: 22px; padding: 0; border: 1px solid rgba(0, 0, 0, .14); border-radius: 6px; cursor: pointer; }
+.swatch.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.swatch.custom { display: grid; place-items: center; background: #fff; color: #555; font-size: 14px; line-height: 1; }
+.swatch.custom input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.swatches.sm .swatch { width: 18px; height: 18px; }

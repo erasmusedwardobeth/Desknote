@@ -1,46 +1,20 @@
 /* canvas.css — the zoomable board in components/workspace/Workspace.jsx */
-#board-shell {
-  height: calc(100vh - 108px);
-  position: relative;
-  overflow: hidden;
-  background-color: #f8f7f3;
-  background-image: radial-gradient(#d9d8d0 0.75px, transparent 0.75px);
-  background-size: 22px 22px;
-  touch-action: none;
-}
-.board-heading {
-  position: absolute;
-  z-index: 1;
-  left: 29px;
-  top: 24px;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  color: #6d7168;
-  font-weight: 600;
-  pointer-events: none;
-}
+.workspace-layout { display: flex; width: 100%; height: calc(100vh - 108px); min-height: 0; }
+
+/* The board itself. Its background color is set per workspace (inline style). */
+#board-shell { flex: 1; min-width: 0; height: 100%; position: relative; overflow: hidden; background-color: #f8f7f3; touch-action: none; }
+#board-shell.space-pan { cursor: grab; }
+
+/* Background layers, bottom to top: image, dot grid. They never receive the mouse. */
+.canvas-bg, .canvas-grid { position: absolute; inset: 0; pointer-events: none; }
+
+.board-heading { position: absolute; z-index: 1; left: 29px; top: 24px; font-size: 12px; letter-spacing: .02em; color: #6d7168; font-weight: 600; pointer-events: none; }
+
 /* #world is the layer that is moved and scaled (pan + zoom); notes and regions live inside it */
-#world {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 1px;
-  height: 1px;
-  transform-origin: 0 0;
-}
-.empty {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: center;
-  color: #8a8d85;
-  font-size: 12px;
-  pointer-events: none;
-}
-.empty strong {
-  color: #555a51;
-  font-size: 14px;
-}
+#world { position: absolute; inset: 0 auto auto 0; width: 1px; height: 1px; transform-origin: 0 0; }
+
+.empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; gap: 6px; text-align: center; color: #8a8d85; font-size: 12px; pointer-events: none; }
+.empty strong { color: #555a51; font-size: 14px; }
+
+/* rectangle drawn while selecting by dragging on empty canvas */
+.marquee { position: absolute; z-index: 6; border: 1px solid var(--accent); background: rgba(47, 111, 237, .12); pointer-events: none; }

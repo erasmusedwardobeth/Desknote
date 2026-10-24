@@ -55,6 +55,9 @@ pub struct Note {
     pub desktop_w: Option<f64>,
     #[serde(default)]
     pub desktop_h: Option<f64>,
+    /// The workspace (canvas) this note lives in. None only for data older than workspaces.
+    #[serde(default)]
+    pub workspace_id: Option<i64>,
 }
 
 /// A group (filled box) or frame (dashed outline) drawn on the canvas.
@@ -70,6 +73,47 @@ pub struct Region {
     /// "group" or "frame"
     pub kind: String,
     pub color: String,
+    /// The workspace (canvas) this group/frame lives in.
+    #[serde(default)]
+    pub workspace_id: Option<i64>,
+}
+
+/// A workspace: a separate canvas with its own background and its own camera.
+/// bg_fit is one of "cover" (fill), "contain" (fit), "tile" or "center".
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Workspace {
+    pub id: Option<i64>,
+    pub name: String,
+    /// Background color "#RRGGBB".
+    pub bg_color: String,
+    /// Absolute path of an image copied into the app's images folder (see import_image).
+    #[serde(default)]
+    pub bg_image: Option<String>,
+    #[serde(default = "default_bg_fit")]
+    pub bg_fit: String,
+    /// Opacity of the background image, 0.0 – 1.0.
+    #[serde(default = "default_bg_opacity")]
+    pub bg_opacity: f64,
+    /// Show the dot grid?
+    #[serde(default = "default_grid")]
+    pub grid: bool,
+    /// This workspace's own camera.
+    pub zoom: f64,
+    pub shift_x: f64,
+    pub shift_y: f64,
+    #[serde(default)]
+    pub sort_order: i64,
+}
+
+fn default_bg_fit() -> String {
+    "cover".to_string()
+}
+fn default_bg_opacity() -> f64 {
+    1.0
+}
+fn default_grid() -> bool {
+    true
 }
 
 /// The workspace camera: zoom and pan offset.
@@ -101,4 +145,7 @@ pub struct BackupFile {
     pub regions: Vec<Region>,
     #[serde(default = "default_workspace_view")]
     pub workspace_view: WorkspaceView,
+    /// Older backups have no workspaces; they are restored into one default workspace.
+    #[serde(default)]
+    pub workspaces: Vec<Workspace>,
 }

@@ -1,0 +1,9 @@
+/* splash.css — components/ui/SplashScreen.jsx and the "busy" pill of long actions */
+.splash { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: linear-gradient(160deg, #0b1f3a, #0f3d5e 60%, #155e75); color: #e8f0fe; }
+.splash-mark { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: #e8f0fe; color: #1d4ed8; font: 800 36px Inter, system-ui, sans-serif; }
+.splash-name { font: 800 22px Inter, system-ui, sans-serif; letter-spacing: -.5px; }
+.splash-spinner { width: 26px; height: 26px; border: 3px solid rgba(255, 255, 255, .25); border-top-color: #fbbf24; border-radius: 50%; animation: desknote-spin .8s linear infinite; }
+.splash-message { font-size: 12px; opacity: .8; }
+.splash-spinner.small { width: 14px; height: 14px; border-width: 2px; border-color: rgba(0, 0, 0, .15); border-top-color: var(--accent); }
+.busy-pill { position: fixed; left: 50%; bottom: 100px; z-index: 60; display: flex; align-items: center; gap: 8px; padding: 8px 14px; transform: translateX(-50%); border: 1px solid #e0ddd2; border-radius: 20px; background: #fffefa; box-shadow: 0 8px 24px rgba(20, 24, 18, .18); font-size: 12px; color: #3b3f37; }
+@keyframes desknote-spin { to { transform: rotate(360deg); } }

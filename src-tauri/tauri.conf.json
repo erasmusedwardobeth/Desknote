@@ -12,7 +12,7 @@
   "app": {
     "withGlobalTauri": false,
     "windows": [{ "label": "main", "title": "Desknote · Focus board", "width": 1180, "height": 780, "minWidth": 760, "minHeight": 520, "resizable": true, "visible": false, "skipTaskbar": true }],
-    "security": { "csp": null }
+    "security": { "csp": null, "assetProtocol": { "enable": true, "scope": ["$APPDATA/images/**"] } }
   },
   "bundle": {
     "active": true,
