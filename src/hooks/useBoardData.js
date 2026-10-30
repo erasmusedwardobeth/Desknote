@@ -1,5 +1,5 @@
 /**
- * useBoardData — loads all notes and regions from Rust and keeps them fresh.
+ * useBoardData — loads all notes and regions (of ALL workspaces) from Rust and keeps them fresh.
  *
  * Rust emits a "notes-changed" event whenever a note is saved, so every open
  * window (workspace + pinned notes) reloads automatically and stays in sync.
@@ -10,6 +10,7 @@
  *   patchNote(id, changes)    update one note in memory only (used while dragging)
  *   patchRegion(id, changes)  same for a group/frame
  *   reload()                  re-fetch from Rust → resolves to [notes, regions]
+ *   loading                   true until the FIRST load has finished (drives the splash screen)
  *   error                     text if the local database could not be read
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -21,6 +22,7 @@ export function useBoardData() {
   const [notes, setNotes] = useState([]);
   const [regions, setRegions] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
     try {
@@ -32,6 +34,8 @@ export function useBoardData() {
     } catch (cause) {
       setError(String(cause));
       return [[], []];
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -54,5 +58,5 @@ export function useBoardData() {
     return () => { cancelled = true; unlisten?.(); };
   }, [reload]);
 
-  return { notes, setNotes, regions, setRegions, patchNote, patchRegion, error, reload };
+  return { notes, setNotes, regions, setRegions, patchNote, patchRegion, error, loading, reload };
 }

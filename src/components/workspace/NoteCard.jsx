@@ -13,7 +13,9 @@
  *   onPinToggle(note), onComplete(note), onDelete(note)   menu actions
  *   onUnpin(note)   called after the user confirms the pin icon's "Unpin?" question
  *   onNudge(updatedNote)   keyboard move/resize finished
- *   onDragStart(event, note, mode), onDragMove, onDragEnd   from useCanvasDrag
+ *   selected        is it part of the current selection? (blue outline)
+ *   onContextMenu(event, note)   right-click
+ *   onDragStart(event, note, mode), onDragMove, onDragEnd   mouse handling (see Workspace + useCanvasDrag)
  */
 import { NOTE_MIN } from '../../lib/constants.js';
 import { nudged } from '../../lib/nudge.js';
@@ -22,7 +24,7 @@ import { confirmAction } from '../../lib/dialogs.js';
 import PinIcon from '../ui/PinIcon.jsx';
 import PopupMenu from '../ui/PopupMenu.jsx';
 
-export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onEdit, onPinToggle, onUnpin, onComplete, onDelete, onNudge, onDragStart, onDragMove, onDragEnd }) {
+export default function NoteCard({ note, groupTitle, selected, onContextMenu, menuOpen, onToggleMenu, onEdit, onPinToggle, onUnpin, onComplete, onDelete, onNudge, onDragStart, onDragMove, onDragEnd }) {
   const title = note.title || 'Untitled';
 
   const handleKeyDown = (event) => {
@@ -38,7 +40,7 @@ export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onE
 
   return (
     <article
-      className={`note-card ${note.pinned ? 'is-pinned' : ''} ${note.completed ? 'is-completed' : ''}`}
+      className={`note-card ${note.pinned ? 'is-pinned' : ''} ${note.completed ? 'is-completed' : ''} ${selected ? 'is-selected' : ''}`}
       role="group"
       tabIndex={0}
       aria-label={`Note: ${title}. Enter to edit; arrow keys to move; Shift plus arrow keys to resize.`}
@@ -49,7 +51,7 @@ export default function NoteCard({ note, groupTitle, menuOpen, onToggleMenu, onE
       onPointerMove={onDragMove}
       onPointerUp={onDragEnd}
       onDoubleClick={() => onEdit(note)}
-      onContextMenu={(event) => { event.preventDefault(); onEdit(note); }}
+      onContextMenu={(event) => onContextMenu(event, note)}
     >
       <div className="card-title">
         {title}

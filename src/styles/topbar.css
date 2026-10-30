@@ -11,3 +11,8 @@
 .quiet { padding: 9px 11px; border-radius: 8px; }
 .quiet.enabled { color: #456b4d; background: #e5eee3; }
 .quiet.enabled:before { content: '✓ '; }
+
+/* buttons that show / hide the side panels */
+.panel-toggle { width: 30px; height: 30px; border: 0; border-radius: 7px; background: transparent; color: #70746c; font-size: 16px; cursor: pointer; flex: 0 0 auto; }
+.panel-toggle:hover { background: #efeee8; }
+.panel-toggle.on { color: var(--accent); background: var(--accent-soft); }

@@ -1,21 +1,22 @@
 //! commands/notes.rs — create, read, update, complete and delete notes.
 //! Frontend wrappers: src/api/notes.js
+//! The SQL itself lives in database.rs (insert_note / update_note).
 
-use crate::database::all_notes;
+use crate::database::{all_notes, first_workspace_id, insert_note, note_by_id, update_note};
 use crate::models::Note;
 use crate::state::{db, AppState};
 use crate::util::now_iso;
-use rusqlite::params;
 use tauri::{AppHandle, Emitter, Manager, State};
 
-/// All notes.
+/// All notes of all workspaces.
 #[tauri::command]
 pub fn list_notes(state: State<'_, AppState>) -> Result<Vec<Note>, String> {
     let conn = db(&state)?;
     all_notes(&conn)
 }
 
-/// Inserts (id is None) or updates (id is Some) a note and returns it with its id.
+/// Inserts (id is None) or updates (id is Some) a note and returns it as stored.
+/// A new note without a workspace goes into the first workspace.
 /// Emits "notes-changed" so every open window reloads.
 #[tauri::command]
 pub fn save_note(mut note: Note, state: State<'_, AppState>, app: AppHandle) -> Result<Note, String> {
@@ -27,20 +28,24 @@ pub fn save_note(mut note: Note, state: State<'_, AppState>, app: AppHandle) -> 
     if !note.completed {
         note.completed_at = None;
     }
-    if let Some(id) = note.id {
-        conn.execute("UPDATE notes SET title=?1,body=?2,x=?3,y=?4,w=?5,h=?6,color=?7,pinned=?8,due=?9,recurrence=?10,checklist=?11,formatting=?12,group_id=?13,updated=?14,completed=?15,completed_at=?16,reminder_sent=CASE WHEN reminder_at IS NOT ?17 THEN 0 ELSE reminder_sent END,reminder_at=?17,always_on_top=?18,desktop_x=?19,desktop_y=?20,desktop_w=?21,desktop_h=?22 WHERE id=?23",
-            params![note.title,note.body,note.x,note.y,note.w,note.h,note.color,note.pinned as i64,note.due,note.recurrence,note.checklist,note.formatting,note.group_id,now,note.completed as i64,note.completed_at,note.reminder_at,note.always_on_top as i64,note.desktop_x,note.desktop_y,note.desktop_w,note.desktop_h,id]).map_err(|e|e.to_string())?;
-        note.updated = Some(now);
+    let saved = if let Some(id) = note.id {
+        let changed = update_note(&conn, id, &note, &now).map_err(|e| e.to_string())?;
+        if changed == 0 {
+            return Err("This note no longer exists".into());
+        }
+        note_by_id(&conn, id)?
     } else {
-        conn.execute("INSERT INTO notes(title,body,x,y,w,h,color,pinned,due,recurrence,checklist,formatting,group_id,created,updated,completed,completed_at,reminder_at,always_on_top,desktop_x,desktop_y,desktop_w,desktop_h) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?14,?15,?16,?17,?18,?19,?20,?21,?22)",
-            params![note.title,note.body,note.x,note.y,note.w,note.h,note.color,note.pinned as i64,note.due,note.recurrence,note.checklist,note.formatting,note.group_id,now,note.completed as i64,note.completed_at,note.reminder_at,note.always_on_top as i64,note.desktop_x,note.desktop_y,note.desktop_w,note.desktop_h]).map_err(|e|e.to_string())?;
-        note.id = Some(conn.last_insert_rowid());
+        if note.workspace_id.is_none() {
+            note.workspace_id = first_workspace_id(&conn);
+        }
         note.created = Some(now.clone());
         note.updated = Some(now);
-    }
+        let id = insert_note(&conn, &note, false).map_err(|e| e.to_string())?;
+        note_by_id(&conn, id)?
+    };
     drop(conn);
-    let _ = app.emit("notes-changed", note.id);
-    Ok(note)
+    let _ = app.emit("notes-changed", saved.id);
+    Ok(saved)
 }
 
 /// Marks a note completed. If it repeats (has `recurrence` and `due`), creates the
@@ -67,10 +72,7 @@ pub fn complete_note(
     note.completed_at = Some(now.clone());
     let mut conn = db(&state)?;
     let transaction = conn.transaction().map_err(|error| error.to_string())?;
-    let changed = transaction.execute(
-        "UPDATE notes SET title=?1,body=?2,x=?3,y=?4,w=?5,h=?6,color=?7,pinned=?8,due=?9,recurrence=?10,checklist=?11,formatting=?12,group_id=?13,updated=?14,completed=1,completed_at=?15,reminder_sent=CASE WHEN reminder_at IS NOT ?16 THEN 0 ELSE reminder_sent END,reminder_at=?16,always_on_top=?17,desktop_x=?18,desktop_y=?19,desktop_w=?20,desktop_h=?21 WHERE id=?22",
-        params![note.title,note.body,note.x,note.y,note.w,note.h,note.color,note.pinned as i64,note.due,note.recurrence,note.checklist,note.formatting,note.group_id,now,note.completed_at,note.reminder_at,note.always_on_top as i64,note.desktop_x,note.desktop_y,note.desktop_w,note.desktop_h,id],
-    ).map_err(|error| error.to_string())?;
+    let changed = update_note(&transaction, id, &note, &now).map_err(|error| error.to_string())?;
     if changed != 1 {
         return Err("This note no longer exists".into());
     }
@@ -90,10 +92,7 @@ pub fn complete_note(
         next.desktop_h = None;
         next.created = Some(now.clone());
         next.updated = Some(now.clone());
-        transaction.execute(
-            "INSERT INTO notes(title,body,x,y,w,h,color,pinned,due,recurrence,checklist,formatting,group_id,created,updated,completed,completed_at,reminder_at,reminder_sent,always_on_top,desktop_x,desktop_y,desktop_w,desktop_h) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22,?23,?24)",
-            params![next.title,next.body,next.x,next.y,next.w,next.h,next.color,next.pinned as i64,next.due,next.recurrence,next.checklist,next.formatting,next.group_id,next.created,next.updated,next.completed as i64,next.completed_at,next.reminder_at,next.reminder_sent as i64,next.always_on_top as i64,next.desktop_x,next.desktop_y,next.desktop_w,next.desktop_h],
-        ).map_err(|error| error.to_string())?;
+        insert_note(&transaction, &next, false).map_err(|error| error.to_string())?;
     }
     transaction.commit().map_err(|error| error.to_string())?;
     drop(conn);

@@ -7,14 +7,16 @@
  *   menuOpen / onToggleMenu     its "⋯" menu
  *   onRename(region), onRemove(region)
  *   onNudge(updatedRegion)      keyboard move/resize finished
- *   onDragStart(event, region)  from useCanvasDrag.startRegionDrag
- *   onResizeStart(event, region) from useCanvasDrag.startRegionResize
+ *   selected                    is it part of the current selection? (blue outline)
+ *   onContextMenu(event, region) right-click
+ *   onDragStart(event, region)  mouse down on the box (move)
+ *   onResizeStart(event, region) mouse down on the corner grip (resize)
  */
 import { REGION_MIN } from '../../lib/constants.js';
 import { nudged } from '../../lib/nudge.js';
 import PopupMenu from '../ui/PopupMenu.jsx';
 
-export default function RegionBox({ region, menuOpen, onToggleMenu, onRename, onRemove, onNudge, onDragStart, onResizeStart }) {
+export default function RegionBox({ region, selected, onContextMenu, menuOpen, onToggleMenu, onRename, onRemove, onNudge, onDragStart, onResizeStart }) {
   const handleKeyDown = (event) => {
     if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter') {
@@ -28,7 +30,7 @@ export default function RegionBox({ region, menuOpen, onToggleMenu, onRename, on
 
   return (
     <div
-      className={`region ${region.kind}`}
+      className={`region ${region.kind} ${selected ? 'is-selected' : ''}`}
       role="group"
       tabIndex={0}
       aria-label={`${region.kind}: ${region.title}. Arrow keys move; Shift plus arrow keys resize; Enter renames.`}
@@ -40,7 +42,7 @@ export default function RegionBox({ region, menuOpen, onToggleMenu, onRename, on
         onDragStart(event, region);
       }}
       onDoubleClick={(event) => { event.stopPropagation(); onRename(region); }}
-      onContextMenu={(event) => { event.preventDefault(); onRemove(region); }}
+      onContextMenu={(event) => onContextMenu(event, region)}
     >
       <span className="region-title">{region.title}</span>
       <button

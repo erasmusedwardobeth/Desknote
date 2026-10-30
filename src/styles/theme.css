@@ -4,6 +4,14 @@
   --muted: #777b72;      /* secondary text */
   --line: #e7e5dc;       /* borders and dividers */
   --paper: #f6f5f0;      /* page background */
-  --green: #547b61;      /* primary accent (buttons) */
-  --green-dark: #42674f; /* primary accent on hover */
+  --panel: #f5f4ef;      /* side panels */
+
+  /* Accent: blue (also used by the old --green name so existing buttons turn blue). */
+  --accent: #2f6fed;
+  --accent-dark: #1f57c4;
+  --accent-soft: #e8f0fe;
+  --aqua: #06b6d4;
+  --gold: #d4a017;
+  --green: #2f6fed;
+  --green-dark: #1f57c4;
 }

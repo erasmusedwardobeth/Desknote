@@ -6,6 +6,8 @@
  *   base.css       reset, shared buttons, toast, error banner
  *   topbar.css     the top bar            footer.css   the bottom bar + zoom buttons
  *   canvas.css     the zoomable board     note-card.css / region.css   items on the board
+ *   panels.css     left (layers) and right (properties) panels
+ *   context-menu.css  right-click menus   splash.css   loading screen and busy pill
  *   menu.css       small "⋯" popup menus
  *   modal.css      dialog frame           editor.css   note editor contents
  *   settings.css   settings dialog        pinned.css   pinned desktop note window
@@ -17,9 +19,11 @@
 @import './note-card.css';
 @import './region.css';
 @import './footer.css';
+@import './panels.css';
 @import './menu.css';
+@import './context-menu.css';
 @import './modal.css';
 @import './editor.css';
 @import './settings.css';
 @import './pinned.css';
-@import './sidebar-tree.css';
+@import './splash.css';
