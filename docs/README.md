@@ -4,6 +4,8 @@ These documents are the working source of truth for product intent and engineeri
 
 ## Documents
 
+Current implementation references: [README](../README.md), [architecture](ARCHITECTURE.md), [development](DEVELOPMENT.md), [widget API](WIDGET_API.md), [platform adapters](PLATFORM_ADAPTERS.md), and [desktop integration](DESKTOP_INTEGRATION.md).
+
 1. [Product Requirements Document](product-requirements.md) — product goals, scope, users, and release priorities.
 2. [Software Requirements Specification](srs.md) — testable functional and quality requirements.
 3. [UX/UI design brief](ux-ui.md) — screens, flows, interaction rules, and links to design artifacts.
