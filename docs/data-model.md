@@ -1,8 +1,8 @@
 # Desknote Data Model (proposed)
 
-**Status:** Proposed for first release  
-**Revision:** 0.1  
-**Date:** 2026-10-05
+**Status:** Implemented snapshot (partial; see limitations)
+**Revision:** 0.2
+**Date:** 2026-11-05
 
 ## Entities
 
@@ -10,17 +10,20 @@
 
 - `id`: stable local identifier
 - `title`, `body`: text / sanitized rich text
-- `color`, `style`: presentation properties
+- `note_type`: `sticky`, `paper`, `parchment`, or `task-list`; defaults to `sticky` for legacy rows and backups
+- `color`, `formatting`: presentation properties
 - `due_at`: optional local calendar date/time; store normalized value plus timezone policy
 - `recurrence`: optional daily, weekly, monthly, or yearly interval. Completing a dated recurring task preserves that completed note and creates the next active occurrence; month/year boundary dates clamp to the final valid day.
 - `reminder_at`: optional local reminder time; notifications are opt-in
 - `is_completed`, `completed_at`: task completion state and timestamp; completed tasks remain until the user deletes them
 - `is_pinned`: whether a desktop window is shown after startup
 - `desktop_x`, `desktop_y`, `desktop_width`, `desktop_height`: desktop note geometry
-- `is_always_on_top`: default true for pinned notes
+- `always_on_top`: optional float-above-windows behavior; defaults false
 - `group_id`: optional relationship to a group
 - `created_at`, `updated_at`: timestamps
 - `deleted_at`: optional soft-delete marker, if recovery is adopted
+
+The current SQLite implementation stores checklist items and formatting as JSON text columns and body as text. It does not yet implement structured rich-content blocks, schema version in each object, optimistic revisions, or soft deletion. `note_type` was added with an additive SQLite migration; existing rows receive `sticky`.
 
 ### Checklist item
 

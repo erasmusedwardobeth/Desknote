@@ -43,6 +43,7 @@
 | Saved zoom/pan, launch at login                    | `commands/settings.rs`          |
 | Export / restore backups                           | `commands/backup.rs`            |
 | Pinned windows, hide/show workspace, quit          | `window_manager.rs`             |
+| Arrange-mode pin movement and resizing             | `pinned_edit_mode.rs`, `pinned_geometry.rs` |
 | Reminder notifications                             | `reminders.rs`                  |
 | Where pinned notes sit (desktop layer, survive Win+D) | `desktop_layer.rs` (per-OS code) |
 | Pin/unpin as ONE operation (DB + window)           | `window_manager.rs` → `set_note_pinned` |
