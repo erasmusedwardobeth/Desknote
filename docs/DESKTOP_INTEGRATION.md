@@ -10,7 +10,7 @@ The repository does not provide an independent widget-host executable or an OS s
 
 `desktop_layer.rs` selects a GTK window type hint. Unless `GDK_BACKEND` is already set, the app requests GTK's X11 backend (typically XWayland in a Wayland login). The default hint is `Desktop`; the code also requests keep-below, skip-taskbar, skip-pager, and all-workspace behavior. This is window-manager-specific. It does not use a portable Wayland protocol, and some environments may ignore the desktop hint or show the widget differently.
 
-Arrange mode temporarily changes the window to an interactive utility hint. Native move/resize commands are registered in `lib.rs` and persist desktop geometry through window events. Desktop and canvas coordinates are separate.
+Arrange mode temporarily changes the window to an interactive utility hint. The handle uses Tauri's native `startDragging` and `startResizeDragging` window-manager gestures; native move/resize events persist desktop geometry. Desktop and canvas coordinates are separate.
 
 ## Other platforms
 
