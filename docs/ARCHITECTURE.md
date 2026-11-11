@@ -11,7 +11,7 @@ Background reminder loop ┘          │
                                      └─ Linux desktop-layer adapter
 ```
 
-The workspace owns visual organization: workspaces, canvas camera state, note canvas coordinates, groups, and frames. Notes remain persisted independently of whether they are pinned. Desktop coordinates and dimensions have separate database columns from canvas coordinates. Pin state is persisted on the note; startup queries published notes and reconstructs one native webview per note. Hiding the main window does not close pinned windows.
+The workspace owns visual organization: workspaces, canvas camera state, note canvas coordinates, groups, and frames. Notes remain persisted independently of whether they are pinned. Desktop coordinates and dimensions have separate database columns from canvas coordinates. Pin state is persisted on the note; startup queries pinned notes and reconstructs one native webview per note. Hiding the main window does not close pinned windows. The workspace is the authoring and organization surface; pinned windows are projections of the same canonical note records.
 
 The Tauri command modules are the application service boundary. `commands/notes.rs` validates note operations and emits `notes-changed`; `database.rs` owns SQLite reads, writes, and migrations; `window_manager.rs` translates pin and lifecycle operations into native windows. The frontend calls commands through `src/api/` wrappers and listens for change events.
 
@@ -19,14 +19,14 @@ The Tauri command modules are the application service boundary. `commands/notes.
 
 SQLite is canonical for note content, presentation choice, tasks, schedule fields, publication state, and geometry. The workspace and pinned views are projections of those records. Pinned widgets currently run as additional windows in the same Tauri process; they are separate from the workspace window, but they are not a separate executable or independently supervised service. Closing the workspace hides it. The explicit quit action ends the application and its pinned windows.
 
-The Rust model uses a shared `Note` record with a validated `noteType` presentation discriminator. The current content model remains plain text plus a serialized checklist and formatting string. Rich structured blocks, conflict revisions, a general event stream, recurring visibility windows, and multi-monitor identity are not implemented.
+The Rust model uses a shared `Note` record with a validated `noteType` presentation discriminator, category tags, plain-text body, and a serialized nested task list with its display style. Legacy flat checklist arrays remain readable. Rich structured content blocks, conflict revisions, a general event stream, recurring visibility windows, and multi-monitor identity are not implemented.
 
 ## Change flow
 
 1. The workspace or pinned window invokes a typed Tauri command through an API wrapper.
 2. Rust validates and writes through the shared SQLite connection.
 3. Commands emit `notes-changed` for data changes.
-4. Frontend windows reload canonical rows. Native move/resize events persist desktop geometry separately.
+4. Frontend windows reload canonical rows. Native window-manager move/resize gestures update the window geometry; native move/resize events persist desktop geometry separately.
 
 ## Platform boundary
 
