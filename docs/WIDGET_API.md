@@ -11,7 +11,7 @@ There is no network server. The widget-facing API is the local Tauri command/eve
 | Publish/unpublish a note | `set_note_pinned` | Persists pin state and creates/closes its native window. |
 | Complete a task | `complete_note` | Saves completion and creates a next occurrence when requested. |
 | Update native title | `set_note_title` | Updates the OS window title. |
-| Change desktop geometry | `move_pinned_window_by`, `resize_pinned_window_by` | Updates window geometry; native move/resize events persist desktop placement. |
+| Move or resize a pinned window | Tauri `Window.startDragging`, `Window.startResizeDragging` | Arrange handles request a native window-manager gesture; native window events persist desktop placement. |
 | Restore pinned windows | Startup query of `pinned_notes` | Reconstructs one window per persisted pinned note. |
 
 Frontend wrappers live in `src/api/notes.js`, `src/api/windows.js`, and `src/api/pinnedGeometry.js`. Window changes currently use the `notes-changed` event followed by a reload; there is no revision-based conflict protocol or dedicated subscription API.
